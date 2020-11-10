@@ -44,5 +44,21 @@ $ npm run test:local
 ***
 
 ## 【References】
+- Sogur   
+  - Smart contract  
+    https://github.com/SogurCurrency/smart-contracts
 
+<br>
 
+- Uniswap 
+  - Flash Swap
+    https://uniswap.org/docs/v2/core-concepts/flash-swaps/
+
+  - Flash Swaps for developers
+    https://uniswap.org/docs/v2/smart-contract-integration/using-flash-swaps/    
+
+  - ExampleFlashSwap.sol
+    https://github.com/Uniswap/uniswap-v2-periphery/blob/master/contracts/examples/ExampleFlashSwap.sol
+
+  - FlashSwap example
+    https://github.com/Austin-Williams/uniswap-flash-swapper
