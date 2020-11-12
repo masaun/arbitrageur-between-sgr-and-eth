@@ -20,6 +20,9 @@ contract ExampleFlashSwap is IUniswapV2Callee {
         WETH = IWETH(IUniswapV2Router01(router).WETH());
     }
 
+    /***
+     * @notice - Swap WETH for ETH (Swap between WETH - ETH)
+     **/
     // needs to accept ETH from any V1 exchange and WETH. ideally this could be enforced, as in the router,
     // but it's not possible because it requires a call to the v1 factory, which takes too much gas
     receive() external payable {}
