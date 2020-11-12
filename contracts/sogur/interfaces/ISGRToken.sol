@@ -13,7 +13,7 @@ import "./ISGRTokenInfo.sol";
  * @dev Exchange ETH for SGR.
  * @dev Exchange SGR for ETH.
  */
-interface SGRToken {
+interface ISGRToken {
 
     /**
      * @dev Return the contract which implements the ISGRTokenManager interface.
