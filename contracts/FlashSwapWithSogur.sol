@@ -25,6 +25,38 @@ contract FlashSwapWithSogur is IUniswapV2Callee {
         SGRToken = ISGRToken(_sgrToken);
     }
 
+
+    ///------------------------------------------------------------
+    /// Workflow of Flash Swap (Total 4 steps)
+    ///------------------------------------------------------------
+
+    /***
+     * @notice - Buying SGR from Sögur's smart contract (by sending ETH to it)
+     **/
+    function buySGR() public returns (bool) {}
+
+    /***
+     * @notice - Swap the received SGR back to ETH on Uniswap
+     **/    
+    function swapSGRForETH() public returns (bool) {}
+    
+    /***
+     * @notice - Selling SGR for ETH from Sögur's smart contract
+     **/
+    function sellSGR() public returns (bool) {}
+
+    /***
+     * @notice - Swap the received ETH back to SGR on Uniswap
+     **/    
+    function swapETHForSGR() public returns (bool) {}
+
+
+
+
+    ///------------------------------------------------------------
+    /// Flash Swap
+    ///------------------------------------------------------------
+
     /***
      * @notice - Swap SGRToken for ETH (Swap between SGRToken - ETH)
      **/
