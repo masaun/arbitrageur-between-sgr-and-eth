@@ -29,6 +29,7 @@ interface SGRToken {
     * @dev Return the sgr token name.
     */
     function name() external view returns (string memory);
+
     /**
      * @dev Return the sgr token symbol.
      */
@@ -51,7 +52,6 @@ interface SGRToken {
      * @param _sgaToSGRTokenExchangeSGRSupply SGR supply for the SGAToSGRTokenExchange contract.
      */
     function init(address _sgaToSGRTokenExchangeAddress, uint256 _sgaToSGRTokenExchangeSGRSupply) external;
-
 
     /**
      * @dev Transfer SGR to another account.
