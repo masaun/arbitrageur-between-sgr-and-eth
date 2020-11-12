@@ -27,6 +27,18 @@ contract FlashSwapWithSogur is IUniswapV2Callee {
 
 
     ///------------------------------------------------------------
+    /// In advance, add a pair (SGR - ETH) liquidity into Uniswap Pool (and create factory contract address)
+    ///------------------------------------------------------------
+
+    /***
+     * @notice - Add a pair (SGR - ETH) liquidity into Uniswap Pool (and create factory contract address)
+     **/
+    function addLiquidity() public returns (bool) {}
+    
+
+
+
+    ///------------------------------------------------------------
     /// Workflow of Flash Swap (Total 4 steps)
     ///------------------------------------------------------------
 
@@ -40,7 +52,9 @@ contract FlashSwapWithSogur is IUniswapV2Callee {
     /***
      * @notice - Swap the received SGR back to ETH on Uniswap
      **/    
-    function swapSGRForETH() public returns (bool) {}
+    function swapSGRForETH() public returns (bool) {
+
+    }
     
     /***
      * @notice - Selling SGR for ETH from Sögur's smart contract
@@ -56,10 +70,10 @@ contract FlashSwapWithSogur is IUniswapV2Callee {
      * @notice - Executor of flash swap for arbitrage profit
      **/
     function arbitrageExecutor() public returns (bool) {
-         buySGR();
-         swapSGRForETH();
-         sellSGR();
-         swapETHForSGR();
+        buySGR();
+        swapSGRForETH();
+        sellSGR();
+        swapETHForSGR();
     }
     
 
