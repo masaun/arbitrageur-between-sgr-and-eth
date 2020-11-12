@@ -52,6 +52,16 @@ contract FlashSwapWithSogur is IUniswapV2Callee {
      **/    
     function swapETHForSGR() public returns (bool) {}
 
+    /***
+     * @notice - Executor of flash swap for arbitrage profit
+     **/
+    function arbitrageExecutor() public returns (bool) {
+         buySGR();
+         swapSGRForETH();
+         sellSGR();
+         swapETHForSGR();
+    }
+    
 
 
 
