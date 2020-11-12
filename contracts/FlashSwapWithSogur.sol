@@ -33,7 +33,9 @@ contract FlashSwapWithSogur is IUniswapV2Callee {
     /***
      * @notice - Buying SGR from Sögur's smart contract (by sending ETH to it)
      **/
-    function buySGR() public returns (bool) {}
+    function buySGR() public returns (bool) {
+        SGRToken.exchange();
+    }
 
     /***
      * @notice - Swap the received SGR back to ETH on Uniswap
@@ -54,7 +56,7 @@ contract FlashSwapWithSogur is IUniswapV2Callee {
 
 
     ///------------------------------------------------------------
-    /// Flash Swap
+    /// Flash Swap (that reference ExampleFlashSwap.sol)
     ///------------------------------------------------------------
 
     /***
