@@ -13,7 +13,7 @@ contract FlashSwapWithSogur {
     IUniswapV2Router02 immutable uniswapV2Router02;
     ISGRToken immutable SGRToken;
 
-    constructor(address _flashSwapHelper, address _uniswapV2Router02, address _sgrToken) public {
+    constructor(address payable _flashSwapHelper, address _uniswapV2Router02, address _sgrToken) public {
         flashSwapHelper = FlashSwapHelper(_flashSwapHelper);
         uniswapV2Router02 = IUniswapV2Router02(_uniswapV2Router02);
         SGRToken = ISGRToken(_sgrToken);
