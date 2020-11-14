@@ -78,7 +78,9 @@ contract FlashSwapWithSogur is IUniswapV2Callee {
     /***
      * @notice - Selling SGR for ETH from Sögur's smart contract
      **/
-    function sellSGR() public returns (bool) {}
+    function sellSGR() public returns (bool) {
+        SGRToken.withdraw();  /// [ToDo]: withdraw method is for that ETH is transferred
+    }
 
     /***
      * @notice - Swap the received ETH back to SGR on Uniswap
