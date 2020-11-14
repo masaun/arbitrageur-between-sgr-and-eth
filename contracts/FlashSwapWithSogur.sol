@@ -2,7 +2,7 @@ pragma solidity ^0.6.6;
 pragma experimental ABIEncoderV2;
 
 import './uniswap-v2-core/interfaces/IUniswapV2Callee.sol';
-
+import './uniswap-v2-core/interfaces/IUniswapV2Pair.sol';
 import './uniswap-v2-periphery/libraries/UniswapV2Library.sol';
 import './uniswap-v2-periphery/interfaces/V1/IUniswapV1Factory.sol';
 import './uniswap-v2-periphery/interfaces/V1/IUniswapV1Exchange.sol';
@@ -16,12 +16,14 @@ import './sogur/interfaces/ISGRToken.sol';
  * @notice - This contract that ...
  **/
 contract FlashSwapWithSogur is IUniswapV2Callee {
+    IUniswapV2Pair immutable uniswapV2Pair;
     IUniswapV2Router02 immutable uniswapV2Router02;
     IUniswapV1Factory immutable factoryV1;
     address immutable factory;
     ISGRToken immutable SGRToken;
 
-    constructor(address _uniswapV2Router02, address _factory, address _factoryV1, address router, address _sgrToken) public {
+    constructor(address _uniswapV2Pair, address _uniswapV2Router02, address _factory, address _factoryV1, address router, address _sgrToken) public {
+        uniswapV2Pair = IUniswapV2Pair(_uniswapV2Pair);
         uniswapV2Router02 = IUniswapV2Router02(_uniswapV2Router02);
         factoryV1 = IUniswapV1Factory(_factoryV1);
         factory = _factory;
@@ -36,17 +38,15 @@ contract FlashSwapWithSogur is IUniswapV2Callee {
     /***
      * @notice - Add a pair (SGR - ETH) liquidity into Uniswap Pool (and create factory contract address)
      **/
-    function addLiquidity(
-        address tokenA,
-        address tokenB,
-        uint amountADesired,
-        uint amountBDesired,
-        uint amountAMin,
-        uint amountBMin,
+    function addLiquidityETH(
+        address token,
+        uint amountTokenDesired,
+        uint amountTokenMin,
+        uint amountETHMin,
         address to,
         uint deadline
     ) public returns (bool) {
-        uniswapV2Router02.addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin, to, deadline);
+        uniswapV2Router02.addLiquidityETH(token, amountTokenDesired, amountTokenMin, amountETHMin, to, deadline);
     }
     
 
