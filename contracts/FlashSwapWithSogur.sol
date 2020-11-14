@@ -7,6 +7,7 @@ import './uniswap-v2-periphery/libraries/UniswapV2Library.sol';
 import './uniswap-v2-periphery/interfaces/V1/IUniswapV1Factory.sol';
 import './uniswap-v2-periphery/interfaces/V1/IUniswapV1Exchange.sol';
 import './uniswap-v2-periphery/interfaces/IUniswapV2Router01.sol';
+import './uniswap-v2-periphery/interfaces/IUniswapV2Router02.sol';
 import './uniswap-v2-periphery/interfaces/IERC20.sol';
 
 import './sogur/interfaces/ISGRToken.sol';
@@ -15,11 +16,13 @@ import './sogur/interfaces/ISGRToken.sol';
  * @notice - This contract that ...
  **/
 contract FlashSwapWithSogur is IUniswapV2Callee {
+    IUniswapV2Router02 immutable uniswapV2Router02;
     IUniswapV1Factory immutable factoryV1;
     address immutable factory;
     ISGRToken immutable SGRToken;
 
-    constructor(address _factory, address _factoryV1, address router, address _sgrToken) public {
+    constructor(address _uniswapV2Router02, address _factory, address _factoryV1, address router, address _sgrToken) public {
+        uniswapV2Router02 = IUniswapV2Router02(_uniswapV2Router02);
         factoryV1 = IUniswapV1Factory(_factoryV1);
         factory = _factory;
         SGRToken = ISGRToken(_sgrToken);
@@ -33,7 +36,18 @@ contract FlashSwapWithSogur is IUniswapV2Callee {
     /***
      * @notice - Add a pair (SGR - ETH) liquidity into Uniswap Pool (and create factory contract address)
      **/
-    function addLiquidity() public returns (bool) {}
+    function addLiquidity(
+        address tokenA,
+        address tokenB,
+        uint amountADesired,
+        uint amountBDesired,
+        uint amountAMin,
+        uint amountBMin,
+        address to,
+        uint deadline
+    ) public returns (bool) {
+        uniswapV2Router02.addLiquidity(tokenA, tokenB, amountADesired, amountBDesired, amountAMin, amountBMin, to, deadline);
+    }
     
 
     ///------------------------------------------------------------
@@ -86,9 +100,6 @@ contract FlashSwapWithSogur is IUniswapV2Callee {
      * @notice - Swap the received ETH back to SGR on Uniswap
      **/    
     function swapETHForSGR() public returns (bool) {}    
-
-
-
 
 
     ///------------------------------------------------------------
