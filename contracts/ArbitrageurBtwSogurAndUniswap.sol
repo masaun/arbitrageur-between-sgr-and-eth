@@ -46,7 +46,7 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Executor of flash swap for arbitrage profit (1: by using the flow of buying)
      **/
-    function arbitrageByBuyingExecutor() public returns (bool) {
+    function ExecuteArbitrageByBuying() public returns (bool) {
         /// Buy SGR tokens on the SGR contract and Swap SGR tokens for ETH on the Uniswap
         buySGR();
         swapSGRForETH();
@@ -59,7 +59,7 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Executor of flash swap for arbitrage profit (2: by using the flow of selling)
      **/
-    function arbitrageBySellingExecutor(address sender, uint amount0, uint amount1, bytes memory data) public returns (bool) {
+    function ExecuteArbitrageBySelling(address sender, uint amount0, uint amount1, bytes memory data) public returns (bool) {
         /// Sell SGR tokens on the SGR contract and Swap ETH for SGR tokens on the Uniswap
         sellSGR();
         swapETHForSGR(sender, amount0, amount1, data);
