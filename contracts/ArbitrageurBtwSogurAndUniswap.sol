@@ -47,21 +47,31 @@ contract ArbitrageurBtwSogurAndUniswap {
      * @notice - Executor of flash swap for arbitrage profit (1: by using the flow of buying)
      **/
     function arbitrageByBuyingExecutor() public returns (bool) {
+        /// Buy SGR tokens on the SGR contract and Swap SGR tokens for ETH on the Uniswap
         buySGR();
         swapSGRForETH();
+
+        /// Repay ETH for the SGR contract and transfer profit of ETH (remained ETH) into a user
+        repayETHForSGRContract();
+        transferProfitETHToUser();
     }
 
     /***
      * @notice - Executor of flash swap for arbitrage profit (2: by using the flow of selling)
      **/
     function arbitrageBySellingExecutor(address sender, uint amount0, uint amount1, bytes memory data, address pairAddress0, address pairAddress1) public returns (bool) {
+        /// Sell SGR tokens on the SGR contract and Swap ETH for SGR tokens on the Uniswap
         sellSGR();
         swapETHForSGR(sender, amount0, amount1, data);
+
+        /// Repay SGR tokens for the SGR contract and transfer profit of SGR tokens (remained SGR tokens) into a user
+        repaySGRForSGRContract();
+        transferProfitSGRToUser();
     }
 
 
     ///------------------------------------------------------------
-    /// Parts of workflow of Flash Swap
+    /// Parts of workflow of Flash Swap (1st part)
     ///------------------------------------------------------------
 
     /***
@@ -90,7 +100,26 @@ contract ArbitrageurBtwSogurAndUniswap {
      **/    
     function swapETHForSGR(address sender, uint amount0, uint amount1, bytes memory data) public returns (bool) {
         flashSwapHelper.uniswapV2Call(sender, amount0, amount1, data);
-    }    
+    }
+
+
+    ///------------------------------------------------------------
+    /// Parts of workflow of Flash Swap (2nd part)
+    ///------------------------------------------------------------
+
+    /***
+     * @notice - Repay ETH for the SGR contract and transfer profit of ETH (remained ETH) into a user
+     **/
+    function repayETHForSGRContract() public returns (bool) {}
+
+    function transferProfitETHToUser() public returns (bool) {}
+
+    /***
+     * @notice - Repay SGR tokens for the SGR contract and transfer profit of SGR tokens (remained SGR tokens) into a user
+     **/
+    function repaySGRForSGRContract() public returns (bool) {}
+
+    function transferProfitSGRToUser() public returns (bool) {}
 
 
 
