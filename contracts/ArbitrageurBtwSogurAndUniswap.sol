@@ -8,7 +8,7 @@ import './sogur/interfaces/ISGRToken.sol';
 /***
  * @notice - This contract that ...
  **/
-contract FlashSwapWithSogur {
+contract ArbitrageurBtwSogurAndUniswap {
     FlashSwapHelper immutable flashSwapHelper;
     IUniswapV2Router02 immutable uniswapV2Router02;
     ISGRToken immutable SGRToken;
