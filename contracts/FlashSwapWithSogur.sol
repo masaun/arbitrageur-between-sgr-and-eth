@@ -56,7 +56,7 @@ contract FlashSwapWithSogur {
      **/
     function arbitrageBySellingExecutor(address sender, uint amount0, uint amount1, bytes memory data, address pairAddress0, address pairAddress1) public returns (bool) {
         sellSGR();
-        swapETHForSGR(sender, amount0, amount1, data, pairAddress0, pairAddress1);
+        swapETHForSGR(sender, amount0, amount1, data);
     }
 
 
@@ -88,7 +88,7 @@ contract FlashSwapWithSogur {
     /***
      * @notice - Swap the received ETH back to SGR on Uniswap (ETH - SGR)
      **/    
-    function swapETHForSGR(address sender, uint amount0, uint amount1, bytes memory data, address pairAddress0, address pairAddress1) public returns (bool) {
+    function swapETHForSGR(address sender, uint amount0, uint amount1, bytes memory data) public returns (bool) {
         flashSwapHelper.uniswapV2Call(sender, amount0, amount1, data);
     }    
 

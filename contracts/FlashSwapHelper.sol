@@ -44,17 +44,20 @@ contract FlashSwapHelper is IUniswapV2Callee {
     // gets tokens/SGRToken via a V2 flash swap, swaps for the ETH/tokens on V1, repays V2, and keeps the rest!
     function uniswapV2Call(address sender, uint amount0, uint amount1, bytes calldata data) external override {
         address[] memory path = new address[](2);
-        uint amountToken;
+        uint amountToken;  /// [Note]: This is SGR token
         uint amountETH;
+    
         { // scope for token{0,1}, avoids stack too deep errors
-        address token0 = IUniswapV2Pair(msg.sender).token0();
-        address token1 = IUniswapV2Pair(msg.sender).token1();
-        assert(msg.sender == UniswapV2Library.pairFor(factory, token0, token1)); // ensure that msg.sender is actually a V2 pair
-        assert(amount0 == 0 || amount1 == 0); // this strategy is unidirectional
-        path[0] = amount0 == 0 ? token0 : token1;
-        path[1] = amount0 == 0 ? token1 : token0;
-        amountToken = token0 == address(SGRToken) ? amount1 : amount0;
-        amountETH = token0 == address(SGRToken) ? amount0 : amount1;
+            address token0 = IUniswapV2Pair(msg.sender).token0(); // fetch the address of token0
+            address token1 = IUniswapV2Pair(msg.sender).token1(); // fetch the address of token1
+            assert(msg.sender == UniswapV2Library.pairFor(factory, token0, token1)); // ensure that msg.sender is actually a V2 pair
+            // rest of the function goes here!
+
+            assert(amount0 == 0 || amount1 == 0); // this strategy is unidirectional
+            path[0] = amount0 == 0 ? token0 : token1;
+            path[1] = amount0 == 0 ? token1 : token0;
+            amountToken = token0 == address(SGRToken) ? amount1 : amount0;
+            amountETH = token0 == address(SGRToken) ? amount0 : amount1;
         }
 
         assert(path[0] == address(SGRToken) || path[1] == address(SGRToken)); // this strategy only works with a V2 SGRToken pair
