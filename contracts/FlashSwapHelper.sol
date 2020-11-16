@@ -9,6 +9,7 @@ import './uniswap-v2-periphery/interfaces/V1/IUniswapV1Exchange.sol';
 import './uniswap-v2-periphery/interfaces/IUniswapV2Router01.sol';
 import './uniswap-v2-periphery/interfaces/IUniswapV2Router02.sol';
 import './uniswap-v2-periphery/interfaces/IERC20.sol';
+import './uniswap-v2-periphery/interfaces/IWETH.sol';
 
 import './sogur/interfaces/ISGRToken.sol';
 
@@ -19,16 +20,65 @@ contract FlashSwapHelper is IUniswapV2Callee {
     IUniswapV2Pair immutable uniswapV2Pair;
     IUniswapV2Router02 immutable uniswapV2Router02;
     IUniswapV1Factory immutable factoryV1;
-    address immutable factory;
+    IWETH immutable WETH;
     ISGRToken immutable SGRToken;
+
+    address immutable factory;
+    address immutable SGR_TOKEN;
 
     constructor(address _uniswapV2Pair, address _uniswapV2Router02, address _factory, address _factoryV1, address router, address _sgrToken) public {
         uniswapV2Pair = IUniswapV2Pair(_uniswapV2Pair);
         uniswapV2Router02 = IUniswapV2Router02(_uniswapV2Router02);
         factoryV1 = IUniswapV1Factory(_factoryV1);
         factory = _factory;
+        WETH = IWETH(IUniswapV2Router01(_uniswapV2Router02).WETH());
         SGRToken = ISGRToken(_sgrToken);
+
+        SGR_TOKEN = _sgrToken; 
     }
+
+
+    ///------------------------------------------------------------
+    /// General Swap on Uniswap v2
+    ///------------------------------------------------------------
+
+    /***
+     * @notice - Swap SGRToken for ETH (Swap between SGRToken - ETH)
+     *         - Ref: https://soliditydeveloper.com/uniswap2
+     **/
+    function swapSGRForETH(uint paymentAmountInSGR) public payable {
+      if (msg.value > 0) {
+          convertEthToSGR(paymentAmountInSGR);
+      } else {
+          require(SGRToken.transferFrom(msg.sender, address(this), paymentAmountInSGR));
+      }
+    }
+
+    function convertEthToSGR(uint SGRAmount) public payable {
+        uint deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
+        uniswapV2Router02.swapETHForExactTokens{ value: msg.value }(SGRAmount, getPathForETHtoSGR(), address(this), deadline);
+        
+        // refund leftover ETH to user
+        (bool success,) = msg.sender.call{ value: address(this).balance }("");
+        require(success, "refund failed");
+    }
+  
+    function getEstimatedETHforSGR(uint SGRAmount) public view returns (uint[] memory) {
+        return uniswapV2Router02.getAmountsIn(SGRAmount, getPathForETHtoSGR());
+    }
+
+    function getPathForETHtoSGR() private view returns (address[] memory) {
+        address[] memory path = new address[](2);
+        path[0] = uniswapV2Router02.WETH();
+        path[1] = SGR_TOKEN;
+        
+        return path;
+    }
+  
+    /// important to receive ETH
+    receive() payable external {}
+
+
 
     ///------------------------------------------------------------
     /// Flash Swap (that reference ExampleFlashSwap.sol)
@@ -39,7 +89,7 @@ contract FlashSwapHelper is IUniswapV2Callee {
      **/
     // needs to accept ETH from any V1 exchange and SGRToken. ideally this could be enforced, as in the router,
     // but it's not possible because it requires a call to the v1 factory, which takes too much gas
-    receive() external payable {}
+    //receive() external payable {}
 
     // gets tokens/SGRToken via a V2 flash swap, swaps for the ETH/tokens on V1, repays V2, and keeps the rest!
     function uniswapV2Call(address sender, uint amount0, uint amount1, bytes calldata data) external override {
