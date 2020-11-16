@@ -43,6 +43,11 @@ contract FlashSwapHelper is IUniswapV2Callee {
     ///------------------------------------------------------------
 
     /***
+     * @notice - important to receive ETH
+     **/
+    receive() payable external {}
+
+    /***
      * @notice - Swap SGRToken for ETH (Swap between SGRToken - ETH)
      *         - Ref: https://soliditydeveloper.com/uniswap2
      **/
@@ -63,7 +68,7 @@ contract FlashSwapHelper is IUniswapV2Callee {
         require(success, "refund failed");
     }
   
-    function getEstimatedETHforSGR(uint SGRAmount) public view returns (uint[] memory) {
+    function getEstimatedETHForSGR(uint SGRAmount) public view returns (uint[] memory) {
         return uniswapV2Router02.getAmountsIn(SGRAmount, getPathForETHtoSGR());
     }
 
@@ -75,8 +80,34 @@ contract FlashSwapHelper is IUniswapV2Callee {
         return path;
     }
   
-    /// important to receive ETH
-    receive() payable external {}
+    /***
+     * @notice - Swap ETH for SGRToken (Swap between ETH - SGRToken)
+     **/
+    function swapETHForSGR(uint paymentAmountInETH) public payable {
+      if (msg.value > 0) {
+          convertSGRToETH(paymentAmountInETH);
+      } else {
+          require(SGRToken.transferFrom(msg.sender, address(this), paymentAmountInSGR));
+      }
+    }
+
+    function convertSGRToETH(uint ETHAmount) public payable {
+        /// [ToDo]: Should fix from ETH to SGRToken below 
+        uint deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
+        uniswapV2Router02.swapETHForExactTokens{ value: msg.value }(SGRAmount, getPathForSGRtoETH(), address(this), deadline);
+    }
+  
+    function getEstimatedSGRForETH(uint ETHAmount) public view returns (uint[] memory) {
+        return uniswapV2Router02.getAmountsIn(ETHAmount, getPathForSGRtoETH());
+    }
+
+    function getPathForSGRtoETH() private view returns (address[] memory) {
+        address[] memory path = new address[](2);
+        path[0] = uniswapV2Router02.WETH();
+        path[1] = SGR_TOKEN;
+        
+        return path;
+    }
 
 
 
