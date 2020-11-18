@@ -78,7 +78,8 @@ contract FlashSwapHelper is IUniswapV2Callee {
      **/
     function swapETHForSGR(uint SGRAmount) public payable {
         uint deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
-        uniswapV2Router02.swapETHForExactTokens{ value: msg.value }(SGRAmount, getPathForETHToSGR(), address(this), deadline);
+        uint amountOut = SGRAmount;
+        uniswapV2Router02.swapETHForExactTokens{ value: msg.value }(amountOut, getPathForETHToSGR(), address(this), deadline);
 
         /// refund leftover ETH to user
         (bool success,) = msg.sender.call{ value: address(this).balance }("");
