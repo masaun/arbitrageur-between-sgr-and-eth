@@ -9,6 +9,12 @@ import './sogur/interfaces/ISGRToken.sol';
  * @notice - This contract that ...
  **/
 contract ArbitrageurBtwSogurAndUniswap {
+
+    /// Mapping for saving bought amount and sold amount
+    mapping (address => uint) ethAmountWhenBuySGR;   /// Key: userAddress -> ETH amount that was transferred for buying SGRToken
+    mapping (address => uint) sgrAmountWhenSellSGR;  /// Key: userAddress -> SGR amount that was transferred for selling SGRToken
+
+
     FlashSwapHelper immutable flashSwapHelper;
     IUniswapV2Router02 immutable uniswapV2Router02;
     ISGRToken immutable SGRToken;
@@ -61,7 +67,7 @@ contract ArbitrageurBtwSogurAndUniswap {
      **/
     function executeArbitrageBySelling(uint SGRAmount) public returns (bool) {
         /// Sell SGR tokens on the SGR contract and Swap ETH for SGR tokens on the Uniswap
-        sellSGR();
+        sellSGR(SGRAmount);
         swapETHForSGR(SGRAmount);
 
         /// Repay SGR tokens for the SGR contract and transfer profit of SGR tokens (remained SGR tokens) into a user
@@ -77,8 +83,9 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Buying SGR from Sögur's smart contract (by sending ETH to it)
      **/
-    function buySGR() public returns (bool) {
+    function buySGR() public payable returns (bool) {
         SGRToken.exchange();
+        ethAmountWhenBuySGR[msg.sender] = msg.value;  /// [Note]: Save the ETH amount that was transferred for buying SGRToken 
     }
 
     /***
@@ -91,8 +98,9 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Selling SGR for ETH from Sögur's smart contract
      **/
-    function sellSGR() public returns (bool) {
-        SGRToken.withdraw();  /// [ToDo]: withdraw method is for that ETH is transferred
+    function sellSGR(uint SGRAmount) public returns (bool) {
+        SGRToken.withdraw();  /// [ToDo]: Should replace this method with correct method.
+        sgrAmountWhenSellSGR[msg.sender] = SGRAmount;  /// [Note]: Save the SGR amount that was transferred for selling SGRToken
     }
 
     /***
@@ -117,7 +125,7 @@ contract ArbitrageurBtwSogurAndUniswap {
 
     function transferProfitETHToUser(address payable userAddress) public returns (bool) {
         uint ETHBalanceOfContract = address(this).balance;
-        userAddress.transfer(ETHBalanceOfContract);
+        userAddress.transfer(ETHBalanceOfContract);  /// Transfer ETH from this contract to userAddress's wallet
     }
 
     /***
