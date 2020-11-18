@@ -1,18 +1,25 @@
 pragma solidity ^0.6.6;
 pragma experimental ABIEncoderV2;
 
+import { SafeMathOpenZeppelin } from "./libraries/SafeMathOpenZeppelin.sol";
+
 import './FlashSwapHelper.sol';
 import './uniswap-v2-periphery/interfaces/IUniswapV2Router02.sol';
 import './sogur/interfaces/ISGRToken.sol';
+
 
 /***
  * @notice - This contract that ...
  **/
 contract ArbitrageurBtwSogurAndUniswap {
+    using SafeMathOpenZeppelin for uint;
+
+    /// Arbitrage ID
+    uint public currentArbitrageId;
 
     /// Mapping for saving bought amount and sold amount
-    mapping (address => uint) ethAmountWhenBuySGR;   /// Key: userAddress -> ETH amount that was transferred for buying SGRToken
-    mapping (address => uint) sgrAmountWhenSellSGR;  /// Key: userAddress -> SGR amount that was transferred for selling SGRToken
+    mapping (uint => mapping (address => uint)) ethAmountWhenBuySGR;   /// Key: arbitrageId -> userAddress -> ETH amount that was transferred for buying SGRToken
+    mapping (uint => mapping (address => uint)) sgrAmountWhenSellSGR;  /// Key: arbitrageId -> userAddress -> SGR amount that was transferred for selling SGRToken
 
 
     FlashSwapHelper immutable flashSwapHelper;
@@ -53,8 +60,12 @@ contract ArbitrageurBtwSogurAndUniswap {
      * @notice - Executor of flash swap for arbitrage profit (1: by using the flow of buying)
      **/
     function executeArbitrageByBuying(uint SGRAmount, address payable userAddress) public returns (bool) {
+        /// Publish new arbitrage ID
+        uint newArbitrageId = getNextArbitrageId();
+        currentArbitrageId++;
+
         /// Buy SGR tokens on the SGR contract and Swap SGR tokens for ETH on the Uniswap
-        buySGR();
+        buySGR(newArbitrageId);
         swapSGRForETH(SGRAmount);
 
         /// Repay ETH for the SGR contract and transfer profit of ETH (remained ETH) into a user
@@ -66,8 +77,12 @@ contract ArbitrageurBtwSogurAndUniswap {
      * @notice - Executor of flash swap for arbitrage profit (2: by using the flow of selling)
      **/
     function executeArbitrageBySelling(uint SGRAmount) public returns (bool) {
+        /// Publish new arbitrage ID
+        uint newArbitrageId = getNextArbitrageId();
+        currentArbitrageId++;
+
         /// Sell SGR tokens on the SGR contract and Swap ETH for SGR tokens on the Uniswap
-        sellSGR(SGRAmount);
+        sellSGR(newArbitrageId, SGRAmount);
         swapETHForSGR(SGRAmount);
 
         /// Repay SGR tokens for the SGR contract and transfer profit of SGR tokens (remained SGR tokens) into a user
@@ -83,9 +98,9 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Buying SGR from Sögur's smart contract (by sending ETH to it)
      **/
-    function buySGR() public payable returns (bool) {
+    function buySGR(uint arbitrageId) public payable returns (bool) {
         SGRToken.exchange();
-        ethAmountWhenBuySGR[msg.sender] = msg.value;  /// [Note]: Save the ETH amount that was transferred for buying SGRToken 
+        ethAmountWhenBuySGR[arbitrageId][msg.sender] = msg.value;  /// [Note]: Save the ETH amount that was transferred for buying SGRToken 
     }
 
     /***
@@ -98,9 +113,9 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Selling SGR for ETH from Sögur's smart contract
      **/
-    function sellSGR(uint SGRAmount) public returns (bool) {
+    function sellSGR(uint arbitrageId, uint SGRAmount) public returns (bool) {
         SGRToken.withdraw();  /// [ToDo]: Should replace this method with correct method.
-        sgrAmountWhenSellSGR[msg.sender] = SGRAmount;  /// [Note]: Save the SGR amount that was transferred for selling SGRToken
+        sgrAmountWhenSellSGR[arbitrageId][msg.sender] = SGRAmount;  /// [Note]: Save the SGR amount that was transferred for selling SGRToken
     }
 
     /***
@@ -152,6 +167,10 @@ contract ArbitrageurBtwSogurAndUniswap {
     ///------------------------------------------------------------
     /// Private functions
     ///------------------------------------------------------------
+
+    function getNextArbitrageId() private view returns (uint nextArbitrageId) {
+        return currentArbitrageId.add(1);
+    }
 
 
 }
