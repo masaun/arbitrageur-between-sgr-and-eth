@@ -46,10 +46,10 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Executor of flash swap for arbitrage profit (1: by using the flow of buying)
      **/
-    function arbitrageByBuyingExecutor() public returns (bool) {
+    function executeArbitrageByBuying(uint SGRAmount) public returns (bool) {
         /// Buy SGR tokens on the SGR contract and Swap SGR tokens for ETH on the Uniswap
         buySGR();
-        swapSGRForETH();
+        swapSGRForETH(SGRAmount);
 
         /// Repay ETH for the SGR contract and transfer profit of ETH (remained ETH) into a user
         repayETHForSGRContract();
@@ -59,10 +59,10 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Executor of flash swap for arbitrage profit (2: by using the flow of selling)
      **/
-    function arbitrageBySellingExecutor(address sender, uint amount0, uint amount1, bytes memory data) public returns (bool) {
+    function executeArbitrageBySelling(uint SGRAmount) public returns (bool) {
         /// Sell SGR tokens on the SGR contract and Swap ETH for SGR tokens on the Uniswap
         sellSGR();
-        swapETHForSGR(sender, amount0, amount1, data);
+        swapETHForSGR(SGRAmount);
 
         /// Repay SGR tokens for the SGR contract and transfer profit of SGR tokens (remained SGR tokens) into a user
         repaySGRForSGRContract();
@@ -83,9 +83,9 @@ contract ArbitrageurBtwSogurAndUniswap {
 
     /***
      * @notice - Swap the received SGR back to ETH on Uniswap
-     **/    
-    function swapSGRForETH() public returns (bool) {
-
+     **/
+    function swapSGRForETH(uint SGRAmount) public returns (bool) {
+        flashSwapHelper.swapSGRForETH(SGRAmount);
     }
     
     /***
@@ -98,8 +98,9 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Swap the received ETH back to SGR on Uniswap (ETH - SGR)
      **/    
-    function swapETHForSGR(address sender, uint amount0, uint amount1, bytes memory data) public returns (bool) {
-        flashSwapHelper.uniswapV2Call(sender, amount0, amount1, data);
+    function swapETHForSGR(uint SGRAmount) public returns (bool) {
+        flashSwapHelper.swapETHForSGR(SGRAmount);
+        //flashSwapHelper.uniswapV2Call(sender, amount0, amount1, data);
     }
 
 
