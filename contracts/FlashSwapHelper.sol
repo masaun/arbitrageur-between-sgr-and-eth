@@ -60,8 +60,9 @@ contract FlashSwapHelper is IUniswapV2Callee {
         // require(success, "refund failed");
     }
   
-    function getEstimatedSGRForETH(uint SGRAmount) public view returns (uint[] memory) {
-        return uniswapV2Router02.getAmountsIn(SGRAmount, getPathForSGRToETH());
+    function getEstimatedSGRForETH(uint ETHAmount) public view returns (uint[] memory) {
+        uint amountOut = ETHAmount;
+        return uniswapV2Router02.getAmountsIn(amountOut, getPathForSGRToETH());
     }
 
     function getPathForSGRToETH() private view returns (address[] memory) {
@@ -85,7 +86,8 @@ contract FlashSwapHelper is IUniswapV2Callee {
     }
   
     function getEstimatedETHToSGR(uint SGRAmount) public view returns (uint[] memory) {
-        return uniswapV2Router02.getAmountsIn(SGRAmount, getPathForETHToSGR());
+        uint amountOut = SGRAmount;
+        return uniswapV2Router02.getAmountsIn(amountOut, getPathForETHToSGR());
     }
 
     function getPathForETHToSGR() private view returns (address[] memory) {
@@ -100,6 +102,21 @@ contract FlashSwapHelper is IUniswapV2Callee {
      * @notice - important to receive ETH
      **/
     receive() payable external {}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     ///------------------------------------------------------------
