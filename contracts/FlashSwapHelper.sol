@@ -43,39 +43,31 @@ contract FlashSwapHelper is IUniswapV2Callee {
     ///------------------------------------------------------------
 
     /***
-     * @notice - important to receive ETH
-     **/
-    receive() payable external {}
-
-    /***
      * @notice - Swap SGRToken for ETH (Swap between SGRToken - ETH)
      *         - Ref: https://soliditydeveloper.com/uniswap2
      **/
-    function swapSGRForETH(uint paymentAmountInSGR) public payable {
-      if (msg.value > 0) {
-          convertEthToSGR(paymentAmountInSGR);
-      } else {
-          require(SGRToken.transferFrom(msg.sender, address(this), paymentAmountInSGR));
-      }
-    }
-
-    function convertEthToSGR(uint SGRAmount) public payable {
+    function swapSGRForETH(uint SGRAmount) public payable {
+        /// [ToDo]: Should fix from ETH to SGRToken below 
         uint deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
-        uniswapV2Router02.swapETHForExactTokens{ value: msg.value }(SGRAmount, getPathForETHtoSGR(), address(this), deadline);
-        
-        // refund leftover ETH to user
-        (bool success,) = msg.sender.call{ value: address(this).balance }("");
-        require(success, "refund failed");
+
+        /// amountOutMin must be retrieved from an oracle of some kind
+        uint amountIn = SGRAmount;
+        uint amountOutMin;  /// [Todo]: Retrieve a minimum amount of ETH
+        uniswapV2Router02.swapExactTokensForETH(amountIn, amountOutMin, getPathForSGRToETH(), address(this), deadline);
+
+        /// refund leftover SGRToken to user
+        // (bool success,) = msg.sender.call{ value: address(this).balance }("");
+        // require(success, "refund failed");
     }
   
-    function getEstimatedETHForSGR(uint SGRAmount) public view returns (uint[] memory) {
-        return uniswapV2Router02.getAmountsIn(SGRAmount, getPathForETHtoSGR());
+    function getEstimatedSGRForETH(uint SGRAmount) public view returns (uint[] memory) {
+        return uniswapV2Router02.getAmountsIn(SGRAmount, getPathForSGRToETH());
     }
 
-    function getPathForETHtoSGR() private view returns (address[] memory) {
+    function getPathForSGRToETH() private view returns (address[] memory) {
         address[] memory path = new address[](2);
-        path[0] = uniswapV2Router02.WETH();
-        path[1] = SGR_TOKEN;
+        path[0] = SGR_TOKEN;
+        path[1] = uniswapV2Router02.WETH();
         
         return path;
     }
@@ -83,25 +75,20 @@ contract FlashSwapHelper is IUniswapV2Callee {
     /***
      * @notice - Swap ETH for SGRToken (Swap between ETH - SGRToken)
      **/
-    function swapETHForSGR(uint paymentAmountInETH) public payable {
-      if (msg.value > 0) {
-          convertSGRToETH(paymentAmountInETH);
-      } else {
-          require(SGRToken.transferFrom(msg.sender, address(this), paymentAmountInSGR));
-      }
-    }
-
-    function convertSGRToETH(uint ETHAmount) public payable {
-        /// [ToDo]: Should fix from ETH to SGRToken below 
+    function swapETHForSGR(uint SGRAmount) public payable {
         uint deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
-        uniswapV2Router02.swapETHForExactTokens{ value: msg.value }(SGRAmount, getPathForSGRtoETH(), address(this), deadline);
+        uniswapV2Router02.swapETHForExactTokens{ value: msg.value }(SGRAmount, getPathForETHToSGR(), address(this), deadline);
+
+        /// refund leftover ETH to user
+        (bool success,) = msg.sender.call{ value: address(this).balance }("");
+        require(success, "refund failed");
     }
   
-    function getEstimatedSGRForETH(uint ETHAmount) public view returns (uint[] memory) {
-        return uniswapV2Router02.getAmountsIn(ETHAmount, getPathForSGRtoETH());
+    function getEstimatedETHToSGR(uint SGRAmount) public view returns (uint[] memory) {
+        return uniswapV2Router02.getAmountsIn(SGRAmount, getPathForETHToSGR());
     }
 
-    function getPathForSGRtoETH() private view returns (address[] memory) {
+    function getPathForETHToSGR() private view returns (address[] memory) {
         address[] memory path = new address[](2);
         path[0] = uniswapV2Router02.WETH();
         path[1] = SGR_TOKEN;
@@ -109,6 +96,10 @@ contract FlashSwapHelper is IUniswapV2Callee {
         return path;
     }
 
+    /***
+     * @notice - important to receive ETH
+     **/
+    receive() payable external {}
 
 
     ///------------------------------------------------------------
