@@ -47,12 +47,13 @@ contract FlashSwapHelper is IUniswapV2Callee {
      *         - Ref: https://soliditydeveloper.com/uniswap2
      **/
     function swapSGRForETH(uint SGRAmount) public payable {
-        /// [ToDo]: Should fix from ETH to SGRToken below 
-        uint deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
+        /// [ToDo]: Should add a method for compute ETHAmountMin;
+        uint ETHAmountMin;
 
         /// amountOutMin must be retrieved from an oracle of some kind
+        uint deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
         uint amountIn = SGRAmount;
-        uint amountOutMin;  /// [Todo]: Retrieve a minimum amount of ETH
+        uint amountOutMin = ETHAmountMin;  /// [Todo]: Retrieve a minimum amount of ETH
         uniswapV2Router02.swapExactTokensForETH(amountIn, amountOutMin, getPathForSGRToETH(), address(this), deadline);
 
         /// refund leftover SGRToken to user
