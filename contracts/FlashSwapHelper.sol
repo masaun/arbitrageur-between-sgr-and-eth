@@ -47,7 +47,7 @@ contract FlashSwapHelper is IUniswapV2Callee {
      *         - Ref: https://soliditydeveloper.com/uniswap2
      **/
     function swapSGRForETH(uint SGRAmount) public payable {
-        /// [ToDo]: Should add a method for compute ETHAmountMin;
+        /// [ToDo]: Should add a method for compute ETHAmountMin
         uint ETHAmountMin;
 
         /// amountOutMin must be retrieved from an oracle of some kind
