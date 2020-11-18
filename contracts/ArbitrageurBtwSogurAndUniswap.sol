@@ -46,14 +46,14 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Executor of flash swap for arbitrage profit (1: by using the flow of buying)
      **/
-    function executeArbitrageByBuying(uint SGRAmount) public returns (bool) {
+    function executeArbitrageByBuying(uint SGRAmount, address payable userAddress) public returns (bool) {
         /// Buy SGR tokens on the SGR contract and Swap SGR tokens for ETH on the Uniswap
         buySGR();
         swapSGRForETH(SGRAmount);
 
         /// Repay ETH for the SGR contract and transfer profit of ETH (remained ETH) into a user
         repayETHForSGRContract();
-        transferProfitETHToUser();
+        transferProfitETHToUser(userAddress);
     }
 
     /***
@@ -111,9 +111,14 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Repay ETH for the SGR contract and transfer profit of ETH (remained ETH) into a user
      **/
-    function repayETHForSGRContract() public returns (bool) {}
+    function repayETHForSGRContract() public returns (bool) {
+        SGRToken.deposit();  /// Deposit ETH into the Sogur contract.
+    }
 
-    function transferProfitETHToUser() public returns (bool) {}
+    function transferProfitETHToUser(address payable userAddress) public returns (bool) {
+        uint ETHBalanceOfContract = address(this).balance;
+        userAddress.transfer(ETHBalanceOfContract);
+    }
 
     /***
      * @notice - Repay SGR tokens for the SGR contract and transfer profit of SGR tokens (remained SGR tokens) into a user
