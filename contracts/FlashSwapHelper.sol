@@ -104,6 +104,9 @@ contract FlashSwapHelper is IUniswapV2Callee {
         uint amountOut = SGRAmount;
         uniswapV2Router02.swapETHForExactTokens{ value: msg.value }(amountOut, getPathForETHToSGR(), address(this), deadline);
 
+        /// Refund leftover ETH to user
+        msg.sender.call.value(address(this).balance)("");
+
         /// Transfer SGR from this contract to user's wallet
         transferSGRIncludeProfitAmountAndInitialAmounToUser(userAddress);
     }
