@@ -72,7 +72,7 @@ contract ArbitrageurBtwSogurAndUniswap {
         swapSGRForETH(SGRAmount);
 
         /// Repay ETH for the SGR contract and transfer profit of ETH (remained ETH) into a user
-        repayETHForSGRContract();
+        repayETHForSGRContract(newArbitrageId, userAddress);
         transferProfitETHToUser(userAddress);
     }
 
@@ -89,7 +89,7 @@ contract ArbitrageurBtwSogurAndUniswap {
         swapETHForSGR(SGRAmount);
 
         /// Repay SGR tokens for the SGR contract and transfer profit of SGR tokens (remained SGR tokens) into a user
-        repaySGRForSGRContract(SGRAmount);
+        repaySGRForSGRContract(newArbitrageId, userAddress);
         transferProfitSGRToUser(userAddress);
     }
 
@@ -137,7 +137,9 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Repay ETH for the SGR contract and transfer profit of ETH (remained ETH) into a user
      **/
-    function repayETHForSGRContract() public returns (bool) {
+    function repayETHForSGRContract(uint arbitrageId, address userAddress) public payable returns (bool) {
+        uint repaidETHAmount = getEthAmountWhenBuySGR(arbitrageId, userAddress);
+        require (msg.value == repaidETHAmount, "ETH amount are bigger than ETH amount when user bought");
         SGRToken.deposit();  /// Deposit ETH into the SGR contract
     }
 
@@ -149,8 +151,9 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Repay SGR tokens for the SGR contract and transfer profit of SGR tokens (remained SGR tokens) into a user
      **/
-    function repaySGRForSGRContract(uint SGRAmount) public returns (bool) {
-        SGRToken.transfer(SGR_TOKEN, SGRAmount);  /// Transfer SGR tokens into the SGR contract
+    function repaySGRForSGRContract(uint arbitrageId, address userAddress) public returns (bool) {
+        uint repaidSGRAmount = getSgrAmountWhenSellSGR(arbitrageId, userAddress);
+        SGRToken.transfer(SGR_TOKEN, repaidSGRAmount);  /// Transfer SGR tokens into the SGR contract
     }
 
     function transferProfitSGRToUser(address userAddress) public returns (bool) {
@@ -170,6 +173,13 @@ contract ArbitrageurBtwSogurAndUniswap {
     /// Getter functions
     ///------------------------------------------------------------
 
+    function getEthAmountWhenBuySGR(uint arbitrageId, address userAddress) public view returns (uint _ethAmountWhenBuySGR) {
+        return ethAmountWhenBuySGR[arbitrageId][userAddress];
+    }    
+
+    function getSgrAmountWhenSellSGR(uint arbitrageId, address userAddress) public view returns (uint _sgrAmountWhenSellSGR) {
+        return sgrAmountWhenSellSGR[arbitrageId][userAddress];
+    }
 
 
     ///------------------------------------------------------------
