@@ -25,6 +25,7 @@ contract ArbitrageurBtwSogurAndUniswap {
     IUniswapV2Router02 immutable uniswapV2Router02;
     ISGRToken immutable SGRToken;
 
+    address payable FLASH_SWAP_HELPER;
     address SGR_TOKEN;
 
     constructor(address payable _flashSwapHelper, address _uniswapV2Router02, address _sgrToken) public {
@@ -32,6 +33,7 @@ contract ArbitrageurBtwSogurAndUniswap {
         uniswapV2Router02 = IUniswapV2Router02(_uniswapV2Router02);
         SGRToken = ISGRToken(_sgrToken);
 
+        FLASH_SWAP_HELPER = _flashSwapHelper;
         SGR_TOKEN = _sgrToken;
     }
 
@@ -111,12 +113,16 @@ contract ArbitrageurBtwSogurAndUniswap {
      * @notice - Swap the received SGR back to ETH on Uniswap
      **/
     function swapSGRForETH(uint SGRAmount) public returns (bool) {
+        /// Transfer SGR tokens from this contract to the FlashSwapHelper contract 
+        SGRToken.transfer(FLASH_SWAP_HELPER, SGRAmount);
+
+        /// Execute swap
         flashSwapHelper.swapSGRForETH(SGRAmount);
     }
     
     /***
      * @notice - Selling SGR for ETH from Sögur's smart contract
-     * @dev - Only specified the contract address of SGRToken.sol as a "to" address in transferFrom() method 
+     * @dev - Only specified the contract address of SGRToken.sol as a "to" address in transferFrom() method of SGRToken.sol
      **/
     function sellSGR(uint arbitrageId, uint SGRAmount) public returns (bool) {
         /// At the 1st, SGR tokens should be transferred from a user's wallet to this contract by using transfer() method. 
@@ -129,9 +135,12 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Swap the received ETH back to SGR on Uniswap (ETH - SGR)
      **/    
-    function swapETHForSGR(uint SGRAmount) public returns (bool) {
+    function swapETHForSGR(uint SGRAmount) public payable returns (bool) {
+        /// Transfer ETH from this contract to the FlashSwapHelper contract 
+        FLASH_SWAP_HELPER.transfer(msg.value);
+
+        /// Execute swap
         flashSwapHelper.swapETHForSGR(SGRAmount);
-        //flashSwapHelper.uniswapV2Call(sender, amount0, amount1, data);
     }
 
 
