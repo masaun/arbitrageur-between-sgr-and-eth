@@ -39,6 +39,25 @@ contract FlashSwapHelper is IUniswapV2Callee {
 
 
     ///------------------------------------------------------------
+    /// In advance, add a pair (SGR - ETH) liquidity into Uniswap Pool (and create factory contract address)
+    ///------------------------------------------------------------
+
+    /***
+     * @notice - Add a pair (SGR - ETH) liquidity into Uniswap Pool (and create factory contract address)
+     **/
+    function addLiquidityETH(
+        address token,
+        uint amountTokenDesired,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline
+    ) public returns (bool) {
+        uniswapV2Router02.addLiquidityETH(token, amountTokenDesired, amountTokenMin, amountETHMin, to, deadline);
+    }
+
+
+    ///------------------------------------------------------------
     /// General Swap on Uniswap v2
     ///------------------------------------------------------------
 
@@ -46,7 +65,7 @@ contract FlashSwapHelper is IUniswapV2Callee {
      * @notice - Swap SGRToken for ETH (Swap between SGRToken - ETH)
      *         - Ref: https://soliditydeveloper.com/uniswap2
      **/
-    function swapSGRForETH(uint SGRAmount) public payable {
+    function swapSGRForETH(address payable userAddress, uint SGRAmount) public payable {
         /// [ToDo]: Should add a method for compute ETHAmountMin
         uint ETHAmountMin;
 
@@ -59,6 +78,9 @@ contract FlashSwapHelper is IUniswapV2Callee {
         /// refund leftover SGRToken to user
         // (bool success,) = msg.sender.call{ value: address(this).balance }("");
         // require(success, "refund failed");
+
+        /// Transfer ETH from this contract to user's wallet
+        transferETHIncludeProfitAmountAndInitialAmounToUser(userAddress);
     }
   
     function getEstimatedSGRForETH(uint ETHAmount) public view returns (uint[] memory) {
@@ -77,14 +99,13 @@ contract FlashSwapHelper is IUniswapV2Callee {
     /***
      * @notice - Swap ETH for SGRToken (Swap between ETH - SGRToken)
      **/
-    function swapETHForSGR(uint SGRAmount) public payable {
+    function swapETHForSGR(address userAddress, uint SGRAmount) public payable {
         uint deadline = block.timestamp + 15; // using 'now' for convenience, for mainnet pass deadline from frontend!
         uint amountOut = SGRAmount;
         uniswapV2Router02.swapETHForExactTokens{ value: msg.value }(amountOut, getPathForETHToSGR(), address(this), deadline);
 
-        /// refund leftover ETH to user
-        (bool success,) = msg.sender.call{ value: address(this).balance }("");
-        require(success, "refund failed");
+        /// Transfer SGR from this contract to user's wallet
+        transferSGRIncludeProfitAmountAndInitialAmounToUser(userAddress);
     }
   
     function getEstimatedETHToSGR(uint SGRAmount) public view returns (uint[] memory) {
@@ -106,13 +127,25 @@ contract FlashSwapHelper is IUniswapV2Callee {
     receive() payable external {}
 
 
+    ///------------------------------------------------------------
+    /// Parts of workflow of arbitrage (2nd part)
+    ///------------------------------------------------------------
 
+    /***
+     * @notice - Transfer ETH that includes profit amount and initial amount into a user.
+     **/
+    function transferETHIncludeProfitAmountAndInitialAmounToUser(address payable userAddress) public returns (bool) {
+        uint ETHBalanceOfContract = address(this).balance;
+        userAddress.transfer(ETHBalanceOfContract);  /// Transfer ETH from this contract to userAddress's wallet
+    }
 
-
-
-
-
-
+    /***
+     * @notice - Transfer SGR tokens that includes profit amount and initial amount into a user.
+     **/
+    function transferSGRIncludeProfitAmountAndInitialAmounToUser(address userAddress) public returns (bool) {
+        uint SGRBalanceOfContract = SGRToken.balanceOf(address(this));
+        SGRToken.transfer(userAddress, SGRBalanceOfContract);  /// Transfer SGR from this contract to userAddress's wallet        
+    }
 
 
 
