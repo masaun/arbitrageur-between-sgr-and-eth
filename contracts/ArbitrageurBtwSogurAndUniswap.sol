@@ -100,6 +100,9 @@ contract ArbitrageurBtwSogurAndUniswap {
      * @notice - Buying SGR from Sögur's smart contract (by sending ETH to it)
      **/
     function buySGR(uint arbitrageId) public payable returns (bool) {
+        /// At the 1st, ETH should be transferred from a user's wallet to this contract
+
+        /// At the 2nd, operations below are executed.
         SGRToken.exchange();  /// Exchange ETH for SGR.
         ethAmountWhenBuySGR[arbitrageId][msg.sender] = msg.value;  /// [Note]: Save the ETH amount that was transferred for buying SGRToken 
     }
@@ -113,10 +116,14 @@ contract ArbitrageurBtwSogurAndUniswap {
     
     /***
      * @notice - Selling SGR for ETH from Sögur's smart contract
+     * @dev - Only specified the contract address of SGRToken.sol as a "to" address in transferFrom() method 
      **/
     function sellSGR(uint arbitrageId, uint SGRAmount) public returns (bool) {
-        SGRToken.withdraw();  /// [ToDo]: Should replace this method with correct method.
-        sgrAmountWhenSellSGR[arbitrageId][msg.sender] = SGRAmount;  /// [Note]: Save the SGR amount that was transferred for selling SGRToken
+        /// At the 1st, SGR tokens should be transferred from a user's wallet to this contract by using transfer() method. 
+
+        /// At the 2nd, operation below is executed
+        SGRToken.transferFrom(msg.sender, address(this), SGRAmount); /// [Note]: SGR exchanged with ETH via transferFrom() method
+        sgrAmountWhenSellSGR[arbitrageId][msg.sender] = SGRAmount;   /// [Note]: Save the SGR amount that was transferred for selling SGRToken
     }
 
     /***
