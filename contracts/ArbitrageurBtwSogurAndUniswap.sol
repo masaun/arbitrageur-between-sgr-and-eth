@@ -4,7 +4,6 @@ pragma experimental ABIEncoderV2;
 import { SafeMathOpenZeppelin } from "./libraries/SafeMathOpenZeppelin.sol";
 
 import './FlashSwapHelper.sol';
-import './uniswap-v2-periphery/interfaces/IUniswapV2Router02.sol';
 import './sogur/interfaces/ISGRToken.sol';
 
 
@@ -22,38 +21,17 @@ contract ArbitrageurBtwSogurAndUniswap {
     mapping (uint => mapping (address => uint)) sgrAmountWhenSellSGR;  /// Key: arbitrageId -> userAddress -> SGR amount that was transferred for selling SGRToken
 
     FlashSwapHelper immutable flashSwapHelper;
-    IUniswapV2Router02 immutable uniswapV2Router02;
     ISGRToken immutable SGRToken;
 
     address payable FLASH_SWAP_HELPER;
     address SGR_TOKEN;
 
-    constructor(address payable _flashSwapHelper, address _uniswapV2Router02, address _sgrToken) public {
+    constructor(address payable _flashSwapHelper, address _sgrToken) public {
         flashSwapHelper = FlashSwapHelper(_flashSwapHelper);
-        uniswapV2Router02 = IUniswapV2Router02(_uniswapV2Router02);
         SGRToken = ISGRToken(_sgrToken);
 
         FLASH_SWAP_HELPER = _flashSwapHelper;
         SGR_TOKEN = _sgrToken;
-    }
-
-
-    ///------------------------------------------------------------
-    /// In advance, add a pair (SGR - ETH) liquidity into Uniswap Pool (and create factory contract address)
-    ///------------------------------------------------------------
-
-    /***
-     * @notice - Add a pair (SGR - ETH) liquidity into Uniswap Pool (and create factory contract address)
-     **/
-    function addLiquidityETH(
-        address token,
-        uint amountTokenDesired,
-        uint amountTokenMin,
-        uint amountETHMin,
-        address to,
-        uint deadline
-    ) public returns (bool) {
-        uniswapV2Router02.addLiquidityETH(token, amountTokenDesired, amountTokenMin, amountETHMin, to, deadline);
     }
     
 

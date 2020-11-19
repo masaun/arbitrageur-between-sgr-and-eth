@@ -39,6 +39,25 @@ contract FlashSwapHelper is IUniswapV2Callee {
 
 
     ///------------------------------------------------------------
+    /// In advance, add a pair (SGR - ETH) liquidity into Uniswap Pool (and create factory contract address)
+    ///------------------------------------------------------------
+
+    /***
+     * @notice - Add a pair (SGR - ETH) liquidity into Uniswap Pool (and create factory contract address)
+     **/
+    function addLiquidityETH(
+        address token,
+        uint amountTokenDesired,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline
+    ) public returns (bool) {
+        uniswapV2Router02.addLiquidityETH(token, amountTokenDesired, amountTokenMin, amountETHMin, to, deadline);
+    }
+
+
+    ///------------------------------------------------------------
     /// General Swap on Uniswap v2
     ///------------------------------------------------------------
 
@@ -59,9 +78,6 @@ contract FlashSwapHelper is IUniswapV2Callee {
         /// refund leftover SGRToken to user
         // (bool success,) = msg.sender.call{ value: address(this).balance }("");
         // require(success, "refund failed");
-
-        /// Transfer ETH from this contract to the FlashSwapHelper contract 
-        FLASH_SWAP_HELPER.transfer(msg.value);
     }
   
     function getEstimatedSGRForETH(uint ETHAmount) public view returns (uint[] memory) {
@@ -136,48 +152,48 @@ contract FlashSwapHelper is IUniswapV2Callee {
     //receive() external payable {}
 
     // gets tokens/SGRToken via a V2 flash swap, swaps for the ETH/tokens on V1, repays V2, and keeps the rest!
-    // function uniswapV2Call(address sender, uint amount0, uint amount1, bytes calldata data) external override {
-    //     address[] memory path = new address[](2);
-    //     uint amountToken;  /// [Note]: This is SGR token
-    //     uint amountETH;
+    function uniswapV2Call(address sender, uint amount0, uint amount1, bytes calldata data) external override {
+        address[] memory path = new address[](2);
+        uint amountToken;  /// [Note]: This is SGR token
+        uint amountETH;
     
-    //     { // scope for token{0,1}, avoids stack too deep errors
-    //         address token0 = IUniswapV2Pair(msg.sender).token0(); // fetch the address of token0
-    //         address token1 = IUniswapV2Pair(msg.sender).token1(); // fetch the address of token1
-    //         assert(msg.sender == UniswapV2Library.pairFor(factory, token0, token1)); // ensure that msg.sender is actually a V2 pair
-    //         // rest of the function goes here!
+        { // scope for token{0,1}, avoids stack too deep errors
+            address token0 = IUniswapV2Pair(msg.sender).token0(); // fetch the address of token0
+            address token1 = IUniswapV2Pair(msg.sender).token1(); // fetch the address of token1
+            assert(msg.sender == UniswapV2Library.pairFor(factory, token0, token1)); // ensure that msg.sender is actually a V2 pair
+            // rest of the function goes here!
 
-    //         assert(amount0 == 0 || amount1 == 0); // this strategy is unidirectional
-    //         path[0] = amount0 == 0 ? token0 : token1;
-    //         path[1] = amount0 == 0 ? token1 : token0;
-    //         amountToken = token0 == address(SGRToken) ? amount1 : amount0;
-    //         amountETH = token0 == address(SGRToken) ? amount0 : amount1;
-    //     }
+            assert(amount0 == 0 || amount1 == 0); // this strategy is unidirectional
+            path[0] = amount0 == 0 ? token0 : token1;
+            path[1] = amount0 == 0 ? token1 : token0;
+            amountToken = token0 == address(SGRToken) ? amount1 : amount0;
+            amountETH = token0 == address(SGRToken) ? amount0 : amount1;
+        }
 
-    //     assert(path[0] == address(SGRToken) || path[1] == address(SGRToken)); // this strategy only works with a V2 SGRToken pair
-    //     IERC20 token = IERC20(path[0] == address(SGRToken) ? path[1] : path[0]);
-    //     IUniswapV1Exchange exchangeV1 = IUniswapV1Exchange(factoryV1.getExchange(address(token))); // get V1 exchange
+        assert(path[0] == address(SGRToken) || path[1] == address(SGRToken)); // this strategy only works with a V2 SGRToken pair
+        IERC20 token = IERC20(path[0] == address(SGRToken) ? path[1] : path[0]);
+        IUniswapV1Exchange exchangeV1 = IUniswapV1Exchange(factoryV1.getExchange(address(token))); // get V1 exchange
 
-    //     if (amountToken > 0) {
-    //         (uint minETH) = abi.decode(data, (uint)); // slippage parameter for V1, passed in by caller
-    //         token.approve(address(exchangeV1), amountToken);
-    //         uint amountReceived = exchangeV1.tokenToEthSwapInput(amountToken, minETH, uint(-1));
-    //         uint amountRequired = UniswapV2Library.getAmountsIn(factory, amountToken, path)[0];
-    //         assert(amountReceived > amountRequired); // fail if we didn't get enough ETH back to repay our flash loan
-    //         SGRToken.deposit{value: amountRequired}();
-    //         assert(SGRToken.transfer(msg.sender, amountRequired)); // return SGRToken to V2 pair
-    //         (bool success,) = sender.call{value: amountReceived - amountRequired}(new bytes(0)); // keep the rest! (ETH)
-    //         assert(success);
-    //     } else {
-    //         (uint minTokens) = abi.decode(data, (uint)); // slippage parameter for V1, passed in by caller
-    //         SGRToken.withdraw();
-    //         uint amountReceived = exchangeV1.ethToTokenSwapInput{value: amountETH}(minTokens, uint(-1));
-    //         uint amountRequired = UniswapV2Library.getAmountsIn(factory, amountETH, path)[0];
-    //         assert(amountReceived > amountRequired); // fail if we didn't get enough tokens back to repay our flash loan
-    //         assert(token.transfer(msg.sender, amountRequired)); // return tokens to V2 pair
-    //         assert(token.transfer(sender, amountReceived - amountRequired)); // keep the rest! (tokens)
-    //     }
-    // }
+        if (amountToken > 0) {
+            (uint minETH) = abi.decode(data, (uint)); // slippage parameter for V1, passed in by caller
+            token.approve(address(exchangeV1), amountToken);
+            uint amountReceived = exchangeV1.tokenToEthSwapInput(amountToken, minETH, uint(-1));
+            uint amountRequired = UniswapV2Library.getAmountsIn(factory, amountToken, path)[0];
+            assert(amountReceived > amountRequired); // fail if we didn't get enough ETH back to repay our flash loan
+            SGRToken.deposit{value: amountRequired}();
+            assert(SGRToken.transfer(msg.sender, amountRequired)); // return SGRToken to V2 pair
+            (bool success,) = sender.call{value: amountReceived - amountRequired}(new bytes(0)); // keep the rest! (ETH)
+            assert(success);
+        } else {
+            (uint minTokens) = abi.decode(data, (uint)); // slippage parameter for V1, passed in by caller
+            SGRToken.withdraw();
+            uint amountReceived = exchangeV1.ethToTokenSwapInput{value: amountETH}(minTokens, uint(-1));
+            uint amountRequired = UniswapV2Library.getAmountsIn(factory, amountETH, path)[0];
+            assert(amountReceived > amountRequired); // fail if we didn't get enough tokens back to repay our flash loan
+            assert(token.transfer(msg.sender, amountRequired)); // return tokens to V2 pair
+            assert(token.transfer(sender, amountReceived - amountRequired)); // keep the rest! (tokens)
+        }
+    }
 
 
     ///------------------------------------------------------------
