@@ -9,8 +9,7 @@ import './sogur/interfaces/ISGRToken.sol';
 
 
 /***
- * @notice - This contract that old version of ArbitrageurBtwSogurAndUniswap.sol
- *         - This contract has repay related methods.
+ * @notice - This contract that new version of ArbitrageurBtwSogurAndUniswap.sol
  **/
 contract ArbitrageurBtwSogurAndUniswap {
     using SafeMathOpenZeppelin for uint;
@@ -57,7 +56,7 @@ contract ArbitrageurBtwSogurAndUniswap {
     
 
     ///------------------------------------------------------------
-    /// Workflow of Flash Swap
+    /// Workflow of arbitrage
     ///------------------------------------------------------------
 
     /***
@@ -72,9 +71,8 @@ contract ArbitrageurBtwSogurAndUniswap {
         buySGR(newArbitrageId);
         swapSGRForETH(SGRAmount);
 
-        /// Repay ETH for the SGR contract and transfer profit of ETH (remained ETH) into a user
-        repayETHForSGRContract(newArbitrageId, userAddress);
-        transferProfitETHToUser(userAddress);
+        /// Transfer Ether that includes profit amount and initial amount into a user.
+        transferETHIncludeProfitAmountAndInitialAmounToUser(userAddress); /// [Note]: If profit is happen, this method will be executed.
     }
 
     /***
@@ -89,14 +87,13 @@ contract ArbitrageurBtwSogurAndUniswap {
         sellSGR(newArbitrageId, SGRAmount);
         swapETHForSGR(SGRAmount);
 
-        /// Repay SGR tokens for the SGR contract and transfer profit of SGR tokens (remained SGR tokens) into a user
-        repaySGRForSGRContract(newArbitrageId, userAddress);
-        transferProfitSGRToUser(userAddress);
+        /// Transfer SGR tokens that includes profit amount and initial amount into a user.
+        transferSGRIncludeProfitAmountAndInitialAmounToUser(userAddress);
     }
 
 
     ///------------------------------------------------------------
-    /// Parts of workflow of Flash Swap (1st part)
+    /// Parts of workflow of arbitrage (1st part)
     ///------------------------------------------------------------
 
     /***
@@ -132,40 +129,21 @@ contract ArbitrageurBtwSogurAndUniswap {
 
 
     ///------------------------------------------------------------
-    /// Parts of workflow of Flash Swap (2nd part)
+    /// Parts of workflow of arbitrage (2nd part)
     ///------------------------------------------------------------
 
     /***
-     * @notice - Repay ETH for the SGR contract and transfer profit of ETH (remained ETH) into a user
+     * @notice - Transfer ETH that includes profit amount and initial amount into a user.
      **/
-    function repayETHForSGRContract(uint arbitrageId, address userAddress) public payable returns (bool) {
-        uint repaidETHAmount = getEthAmountWhenBuySGR(arbitrageId, userAddress);
-
-        /// [Todo]: Should replace "msg.value". Because payer of ETH is this contract.
-        require (msg.value == repaidETHAmount, "ETH amount are bigger than ETH amount when user bought");
-        
-        SGRToken.deposit();  /// Deposit ETH into the SGR contract
-
-
-
-    }
-
-    function transferProfitETHToUser(address payable userAddress) public returns (bool) {
+    function transferETHIncludeProfitAmountAndInitialAmounToUser(address payable userAddress) public returns (bool) {
         uint ETHBalanceOfContract = address(this).balance;
         userAddress.transfer(ETHBalanceOfContract);  /// Transfer ETH from this contract to userAddress's wallet
     }
 
     /***
-     * @notice - Repay SGR tokens for the SGR contract and transfer profit of SGR tokens (remained SGR tokens) into a user
+     * @notice - Transfer SGR tokens that includes profit amount and initial amount into a user.
      **/
-    function repaySGRForSGRContract(uint arbitrageId, address userAddress) public returns (bool) {
-        uint repaidSGRAmount = getSgrAmountWhenSellSGR(arbitrageId, userAddress);
-
-        /// [Note]: transfer method is a method that exchangeSgrForEth method is included.
-        SGRToken.transfer(SGR_TOKEN, repaidSGRAmount);  /// Transfer SGR tokens into the SGR contract
-    }
-
-    function transferProfitSGRToUser(address userAddress) public returns (bool) {
+    function transferSGRIncludeProfitAmountAndInitialAmounToUser(address userAddress) public returns (bool) {
         uint SGRBalanceOfContract = SGRToken.balanceOf(address(this));
         SGRToken.transfer(userAddress, SGRBalanceOfContract);  /// Transfer SGR from this contract to userAddress's wallet        
     }
