@@ -120,4 +120,14 @@ interface ISGRToken {
      */
     function getWithdrawParams() external view returns (address, uint256);
 
+
+    ///---------------------------
+    /// Methods of IERC20.sol
+    ///---------------------------
+
+    /**
+     * @dev See {IERC20-balanceOf}.
+     */
+    function balanceOf(address account) external view returns (uint256);
+
 }
