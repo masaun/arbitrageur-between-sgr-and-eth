@@ -21,15 +21,18 @@ contract ArbitrageurBtwSogurAndUniswap {
     mapping (uint => mapping (address => uint)) ethAmountWhenBuySGR;   /// Key: arbitrageId -> userAddress -> ETH amount that was transferred for buying SGRToken
     mapping (uint => mapping (address => uint)) sgrAmountWhenSellSGR;  /// Key: arbitrageId -> userAddress -> SGR amount that was transferred for selling SGRToken
 
-
     FlashSwapHelper immutable flashSwapHelper;
     IUniswapV2Router02 immutable uniswapV2Router02;
     ISGRToken immutable SGRToken;
+
+    address SGR_TOKEN;
 
     constructor(address payable _flashSwapHelper, address _uniswapV2Router02, address _sgrToken) public {
         flashSwapHelper = FlashSwapHelper(_flashSwapHelper);
         uniswapV2Router02 = IUniswapV2Router02(_uniswapV2Router02);
         SGRToken = ISGRToken(_sgrToken);
+
+        SGR_TOKEN = _sgrToken;
     }
 
 
@@ -76,7 +79,7 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Executor of flash swap for arbitrage profit (2: by using the flow of selling)
      **/
-    function executeArbitrageBySelling(uint SGRAmount) public returns (bool) {
+    function executeArbitrageBySelling(uint SGRAmount, address payable userAddress) public returns (bool) {
         /// Publish new arbitrage ID
         uint newArbitrageId = getNextArbitrageId();
         currentArbitrageId++;
@@ -86,8 +89,8 @@ contract ArbitrageurBtwSogurAndUniswap {
         swapETHForSGR(SGRAmount);
 
         /// Repay SGR tokens for the SGR contract and transfer profit of SGR tokens (remained SGR tokens) into a user
-        repaySGRForSGRContract();
-        transferProfitSGRToUser();
+        repaySGRForSGRContract(SGRAmount);
+        transferProfitSGRToUser(userAddress);
     }
 
 
@@ -99,7 +102,7 @@ contract ArbitrageurBtwSogurAndUniswap {
      * @notice - Buying SGR from Sögur's smart contract (by sending ETH to it)
      **/
     function buySGR(uint arbitrageId) public payable returns (bool) {
-        SGRToken.exchange();
+        SGRToken.exchange();  /// Exchange ETH for SGR.
         ethAmountWhenBuySGR[arbitrageId][msg.sender] = msg.value;  /// [Note]: Save the ETH amount that was transferred for buying SGRToken 
     }
 
@@ -135,7 +138,7 @@ contract ArbitrageurBtwSogurAndUniswap {
      * @notice - Repay ETH for the SGR contract and transfer profit of ETH (remained ETH) into a user
      **/
     function repayETHForSGRContract() public returns (bool) {
-        SGRToken.deposit();  /// Deposit ETH into the Sogur contract.
+        SGRToken.deposit();  /// Deposit ETH into the SGR contract
     }
 
     function transferProfitETHToUser(address payable userAddress) public returns (bool) {
@@ -146,9 +149,14 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Repay SGR tokens for the SGR contract and transfer profit of SGR tokens (remained SGR tokens) into a user
      **/
-    function repaySGRForSGRContract() public returns (bool) {}
+    function repaySGRForSGRContract(uint SGRAmount) public returns (bool) {
+        SGRToken.transfer(SGR_TOKEN, SGRAmount);  /// Transfer SGR tokens into the SGR contract
+    }
 
-    function transferProfitSGRToUser() public returns (bool) {}
+    function transferProfitSGRToUser(address userAddress) public returns (bool) {
+        uint SGRBalanceOfContract = SGRToken.balanceOf(address(this));
+        SGRToken.transfer(userAddress, SGRBalanceOfContract);  /// Transfer SGR from this contract to userAddress's wallet        
+    }
 
 
 
