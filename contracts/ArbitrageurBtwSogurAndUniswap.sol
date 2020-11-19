@@ -33,7 +33,7 @@ contract ArbitrageurBtwSogurAndUniswap {
         FLASH_SWAP_HELPER = _flashSwapHelper;
         SGR_TOKEN = _sgrToken;
     }
-    
+
 
     ///------------------------------------------------------------
     /// Workflow of arbitrage
@@ -42,33 +42,27 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Executor of flash swap for arbitrage profit (1: by using the flow of buying)
      **/
-    function executeArbitrageByBuying(uint SGRAmount, address payable userAddress) public returns (bool) {
+    function executeArbitrageByBuying(address payable userAddress, uint SGRAmount) public returns (bool) {
         /// Publish new arbitrage ID
         uint newArbitrageId = getNextArbitrageId();
         currentArbitrageId++;
 
         /// Buy SGR tokens on the SGR contract and Swap SGR tokens for ETH on the Uniswap
         buySGR(newArbitrageId);
-        swapSGRForETH(SGRAmount);
-
-        /// Transfer Ether that includes profit amount and initial amount into a user.
-        transferETHIncludeProfitAmountAndInitialAmounToUser(userAddress); /// [Note]: If profit is happen, this method will be executed.
+        swapSGRForETH(userAddress, SGRAmount);
     }
 
     /***
      * @notice - Executor of flash swap for arbitrage profit (2: by using the flow of selling)
      **/
-    function executeArbitrageBySelling(uint SGRAmount, address payable userAddress) public returns (bool) {
+    function executeArbitrageBySelling(address payable userAddress, uint SGRAmount) public returns (bool) {
         /// Publish new arbitrage ID
         uint newArbitrageId = getNextArbitrageId();
         currentArbitrageId++;
 
         /// Sell SGR tokens on the SGR contract and Swap ETH for SGR tokens on the Uniswap
         sellSGR(newArbitrageId, SGRAmount);
-        swapETHForSGR(SGRAmount);
-
-        /// Transfer SGR tokens that includes profit amount and initial amount into a user.
-        transferSGRIncludeProfitAmountAndInitialAmounToUser(userAddress);
+        swapETHForSGR(userAddress, SGRAmount);
     }
 
 
@@ -90,12 +84,12 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Swap the received SGR back to ETH on Uniswap
      **/
-    function swapSGRForETH(uint SGRAmount) public returns (bool) {
+    function swapSGRForETH(address payable userAddress, uint SGRAmount) public returns (bool) {
         /// Transfer SGR tokens from this contract to the FlashSwapHelper contract 
         SGRToken.transfer(FLASH_SWAP_HELPER, SGRAmount);
 
         /// Execute swap
-        flashSwapHelper.swapSGRForETH(SGRAmount);
+        flashSwapHelper.swapSGRForETH(userAddress, SGRAmount);
     }
     
     /***
@@ -113,33 +107,12 @@ contract ArbitrageurBtwSogurAndUniswap {
     /***
      * @notice - Swap the received ETH back to SGR on Uniswap (ETH - SGR)
      **/    
-    function swapETHForSGR(uint SGRAmount) public payable returns (bool) {
+    function swapETHForSGR(address userAddress, uint SGRAmount) public payable returns (bool) {
         /// Transfer ETH from this contract to the FlashSwapHelper contract 
         FLASH_SWAP_HELPER.transfer(msg.value);
 
         /// Execute swap
-        flashSwapHelper.swapETHForSGR(SGRAmount);
-    }
-
-
-    ///------------------------------------------------------------
-    /// Parts of workflow of arbitrage (2nd part)
-    ///------------------------------------------------------------
-
-    /***
-     * @notice - Transfer ETH that includes profit amount and initial amount into a user.
-     **/
-    function transferETHIncludeProfitAmountAndInitialAmounToUser(address payable userAddress) public returns (bool) {
-        uint ETHBalanceOfContract = address(this).balance;
-        userAddress.transfer(ETHBalanceOfContract);  /// Transfer ETH from this contract to userAddress's wallet
-    }
-
-    /***
-     * @notice - Transfer SGR tokens that includes profit amount and initial amount into a user.
-     **/
-    function transferSGRIncludeProfitAmountAndInitialAmounToUser(address userAddress) public returns (bool) {
-        uint SGRBalanceOfContract = SGRToken.balanceOf(address(this));
-        SGRToken.transfer(userAddress, SGRBalanceOfContract);  /// Transfer SGR from this contract to userAddress's wallet        
+        flashSwapHelper.swapETHForSGR(userAddress, SGRAmount);
     }
 
 
