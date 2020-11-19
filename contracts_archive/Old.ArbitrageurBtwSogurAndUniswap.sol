@@ -9,7 +9,7 @@ import './sogur/interfaces/ISGRToken.sol';
 
 
 /***
- * @notice - This contract that ...
+ * @notice - This contract that old version of ArbitrageurBtwSogurAndUniswap.sol
  **/
 contract ArbitrageurBtwSogurAndUniswap {
     using SafeMathOpenZeppelin for uint;
@@ -139,8 +139,14 @@ contract ArbitrageurBtwSogurAndUniswap {
      **/
     function repayETHForSGRContract(uint arbitrageId, address userAddress) public payable returns (bool) {
         uint repaidETHAmount = getEthAmountWhenBuySGR(arbitrageId, userAddress);
+
+        /// [Todo]: Should replace "msg.value". Because payer of ETH is this contract.
         require (msg.value == repaidETHAmount, "ETH amount are bigger than ETH amount when user bought");
+        
         SGRToken.deposit();  /// Deposit ETH into the SGR contract
+
+
+
     }
 
     function transferProfitETHToUser(address payable userAddress) public returns (bool) {
@@ -153,6 +159,8 @@ contract ArbitrageurBtwSogurAndUniswap {
      **/
     function repaySGRForSGRContract(uint arbitrageId, address userAddress) public returns (bool) {
         uint repaidSGRAmount = getSgrAmountWhenSellSGR(arbitrageId, userAddress);
+
+        /// [Note]: transfer method is a method that exchangeSgrForEth method is included.
         SGRToken.transfer(SGR_TOKEN, repaidSGRAmount);  /// Transfer SGR tokens into the SGR contract
     }
 
