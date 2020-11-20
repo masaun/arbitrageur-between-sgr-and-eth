@@ -7,6 +7,7 @@ module.exports = {
         "Sogur": {
             "SGRToken": "0xEd8F60f02c333d3B0E6Cf0553C19df7E9A99226F",
             "SGRAuthorizationManager": "0xd1F9c26bc7E66896A9ED1d8631dBA962Cc4e754d",
+            "AuthorizationDataSource": "0x9663Ed9c7690C4748C5418b549c55396035A82E5"
         },
     },
     "Kovan": {
