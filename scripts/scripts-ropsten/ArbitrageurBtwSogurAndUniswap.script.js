@@ -2,12 +2,12 @@ require('dotenv').config();
 
 const Tx = require('ethereumjs-tx').Transaction;
 const Web3 = require('web3');
-const provider = new Web3.providers.HttpProvider(`https://kovan.infura.io/v3/${ process.env.INFURA_KEY }`);
+const provider = new Web3.providers.HttpProvider(`https://ropsten.infura.io/v3/${ process.env.INFURA_KEY }`);
 const web3 = new Web3(provider);
 
 /* Wallet */
-const walletAddress1 = process.env.WALLET_ADDRESS;
-const privateKey1 = process.env.PRIVATE_KEY;
+const walletAddress1 = process.env.WALLET_ADDRESS_1;
+const privateKey1 = process.env.PRIVATE_KEY_1;
 
 /* Global variable */
 let ArbitrageurBtwSogurAndUniswap = {};
@@ -16,7 +16,7 @@ ArbitrageurBtwSogurAndUniswap = require("../../build/contracts/ArbitrageurBtwSog
 /* Set up contract */
 arbitrageurBtwSogurAndUniswapABI = ArbitrageurBtwSogurAndUniswap.abi;
 arbitrageurBtwSogurAndUniswapAddr = ArbitrageurBtwSogurAndUniswap["networks"]["3"]["address"];    /// Deployed address on Ropsten
-arbitrageurBtwSogurAndUniswap = new web3.eth.Contract(ArbitrageurBtwSogurAndUniswapABI, ArbitrageurBtwSogurAndUniswapAddr);
+arbitrageurBtwSogurAndUniswap = new web3.eth.Contract(arbitrageurBtwSogurAndUniswapABI, arbitrageurBtwSogurAndUniswapAddr);
 
 
 /***
@@ -33,8 +33,8 @@ main();
  **/
 async function buySGR() {
     const arbitrageId = 1;
-    let inputData1 = await arbitrageurBtwSogurAndUniswa.methods.buySGR(arbitrageId).encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, arbitrageurBtwSogurAndUniswapAddr, inputData1)
+    let inputData1 = await arbitrageurBtwSogurAndUniswap.methods.buySGR(arbitrageId).encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, arbitrageurBtwSogurAndUniswapAddr, inputData1);
 }
 
 
@@ -61,7 +61,7 @@ async function sendTransaction(walletAddress, privateKey, contractAddress, input
 
         /// Sign the transaction
         privateKey = Buffer.from(privateKey, 'hex');
-        let tx = new Tx(txObject, { 'chain': 'kovan'});  /// Chain ID = kovan
+        let tx = new Tx(txObject, { 'chain': 'ropsten'});  /// Chain ID = Ropsten
         tx.sign(privateKey);
 
         const serializedTx = tx.serialize();
