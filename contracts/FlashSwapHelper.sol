@@ -5,7 +5,6 @@ import './uniswap-v2-periphery/libraries/UniswapV2Library.sol';
 
 import './uniswap-v2-core/interfaces/IUniswapV2Factory.sol';
 import './uniswap-v2-core/interfaces/IUniswapV2Pair.sol';
-import './uniswap-v2-periphery/interfaces/IUniswapV2Router01.sol';
 import './uniswap-v2-periphery/interfaces/IUniswapV2Router02.sol';
 import './uniswap-v2-periphery/interfaces/IERC20.sol';
 import './uniswap-v2-periphery/interfaces/IWETH.sol';
@@ -16,20 +15,18 @@ import './sogur/interfaces/ISGRToken.sol';
  * @notice - This contract that ...
  **/
 contract FlashSwapHelper {
-    IUniswapV2Router01 public uniswapV2Router01;
+    IUniswapV2Router02 public uniswapV2Router02;
 
     IUniswapV2Factory immutable uniswapV2Factory;
-    IUniswapV2Router02 immutable uniswapV2Router02;
     IWETH immutable WETH;
     ISGRToken immutable SGRToken;
 
     address immutable SGR_TOKEN;
 
-    constructor(address _uniswapV2Factory, address _uniswapV2Router01, address _uniswapV2Router02, address _sgrToken) public {
+    constructor(address _uniswapV2Factory, address _uniswapV2Router02, address _sgrToken) public {
         uniswapV2Factory = IUniswapV2Factory(_uniswapV2Factory);
-        uniswapV2Router01 = IUniswapV2Router01(_uniswapV2Router01);
         uniswapV2Router02 = IUniswapV2Router02(_uniswapV2Router02);
-        WETH = IWETH(uniswapV2Router01.WETH());
+        WETH = IWETH(uniswapV2Router02.WETH());
         SGRToken = ISGRToken(_sgrToken);
 
         SGR_TOKEN = _sgrToken; 
@@ -41,24 +38,23 @@ contract FlashSwapHelper {
     ///------------------------------------------------------------
 
     /***
-     * @notice - Create a pair (SGR - ETH) 
-     **/
-    function createPair(address tokenA, address tokenB) public returns (bool) {
-        uniswapV2Factory.createPair(tokenA, tokenB);
-    }
-
-    /***
      * @notice - Add a pair (SGR - ETH) liquidity into Uniswap Pool (and create factory contract address)
+     *         - The addLiquidityETH() method of UniswapV2Router02.sol include createPair() method.
+     *         - ETH is converted to WETH in the addLiquidityETH() method of UniswapV2Router02.sol
      **/
-    function addLiquidityETH(
-        address token,
-        uint amountTokenDesired,
-        uint amountTokenMin,
+    function addLiquiditySGRAndETH(
+        //address SGRToken, /// [Note]: This is "tokenA" => "SGRToken"
+        uint amountSGRTokenDesired,
+        uint amountSGRTokenMin,
         uint amountETHMin,
         address to,
         uint deadline
     ) public returns (bool) {
-        uniswapV2Router02.addLiquidityETH(token, amountTokenDesired, amountTokenMin, amountETHMin, to, deadline);
+        /// [Note]: At first, an user should execute this method with some amount of ETH (msg.value)
+
+        /// [Note]: "tokenA" is SGRToken
+        /// [Note]: "tokenB" is WETH
+        uniswapV2Router02.addLiquidityETH(SGR_TOKEN, amountSGRTokenDesired, amountSGRTokenMin, amountETHMin, to, deadline);
     }
 
 
