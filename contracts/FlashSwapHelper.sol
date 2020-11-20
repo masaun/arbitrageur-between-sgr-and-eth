@@ -42,16 +42,17 @@ contract FlashSwapHelper {
      *         - The addLiquidityETH() method of UniswapV2Router02.sol include createPair() method.
      *         - ETH is converted to WETH in the addLiquidityETH() method of UniswapV2Router02.sol
      **/
-    function addLiquidityETH(
-        address token, /// [Note]: This is "tokenA"
+    function addLiquiditySGRAndETH(
+        address SGRToken, /// [Note]: This is "tokenA" => "SGRToken"
         uint amountTokenDesired,
         uint amountTokenMin,
         uint amountETHMin,
         address to,
         uint deadline
     ) public returns (bool) {
+        /// [Note]: At first, an user should execute this method with some amount of ETH (msg.value)
         /// [Note]: "token" is "tokenA". "tokenB" is WETH.
-        uniswapV2Router02.addLiquidityETH(token, amountTokenDesired, amountTokenMin, amountETHMin, to, deadline);
+        uniswapV2Router02.addLiquidityETH(SGRToken, amountTokenDesired, amountTokenMin, amountETHMin, to, deadline);
     }
 
 
