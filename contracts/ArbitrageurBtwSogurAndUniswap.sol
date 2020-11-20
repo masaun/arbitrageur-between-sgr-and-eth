@@ -107,6 +107,7 @@ contract ArbitrageurBtwSogurAndUniswap {
 
         /// At the 2nd, msg.sender is authorized for selling SGR.
         SGRAuthorizationManager.isAuthorizedToSell(msg.sender);
+        SGRAuthorizationManager.isAuthorizedToTransferFrom(msg.sender, msg.sender, address(this));
 
         /// At the 3rd, operation below is executed
         SGRToken.transferFrom(msg.sender, address(this), SGRAmount); /// [Note]: SGR exchanged with ETH via transferFrom() method
