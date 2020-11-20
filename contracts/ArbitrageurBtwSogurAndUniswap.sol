@@ -5,6 +5,7 @@ import { SafeMathOpenZeppelin } from "./libraries/SafeMathOpenZeppelin.sol";
 
 import './FlashSwapHelper.sol';
 import './sogur/interfaces/ISGRToken.sol';
+import './sogur/interfaces/ISGRAuthorizationManager.sol';
 
 
 /***
@@ -22,13 +23,15 @@ contract ArbitrageurBtwSogurAndUniswap {
 
     FlashSwapHelper immutable flashSwapHelper;
     ISGRToken immutable SGRToken;
+    ISGRAuthorizationManager immutable SGRAuthorizationManager;
 
     address payable FLASH_SWAP_HELPER;
     address SGR_TOKEN;
 
-    constructor(address payable _flashSwapHelper, address _sgrToken) public {
+    constructor(address payable _flashSwapHelper, address _sgrToken, address _sgrAuthorizationManager) public {
         flashSwapHelper = FlashSwapHelper(_flashSwapHelper);
         SGRToken = ISGRToken(_sgrToken);
+        SGRAuthorizationManager = ISGRAuthorizationManager(_sgrAuthorizationManager);
 
         FLASH_SWAP_HELPER = _flashSwapHelper;
         SGR_TOKEN = _sgrToken;
@@ -76,7 +79,10 @@ contract ArbitrageurBtwSogurAndUniswap {
     function buySGR(uint arbitrageId) public payable returns (bool) {
         /// At the 1st, ETH should be transferred from a user's wallet to this contract
 
-        /// At the 2nd, operations below are executed.
+        /// At the 2nd, msg.sender is authorized for buying SGR.
+        SGRAuthorizationManager.isAuthorizedToBuy(msg.sender);
+
+        /// At the 3rd, operations below are executed.
         SGRToken.exchange();  /// Exchange ETH for SGR.
         ethAmountWhenBuySGR[arbitrageId][msg.sender] = msg.value;  /// [Note]: Save the ETH amount that was transferred for buying SGRToken 
     }
@@ -99,7 +105,11 @@ contract ArbitrageurBtwSogurAndUniswap {
     function sellSGR(uint arbitrageId, uint SGRAmount) public returns (bool) {
         /// At the 1st, SGR tokens should be transferred from a user's wallet to this contract by using transfer() method. 
 
-        /// At the 2nd, operation below is executed
+        /// At the 2nd, msg.sender is authorized for selling SGR.
+        SGRAuthorizationManager.isAuthorizedToSell(msg.sender);
+        SGRAuthorizationManager.isAuthorizedToTransferFrom(msg.sender, msg.sender, address(this));
+
+        /// At the 3rd, operation below is executed
         SGRToken.transferFrom(msg.sender, address(this), SGRAmount); /// [Note]: SGR exchanged with ETH via transferFrom() method
         sgrAmountWhenSellSGR[arbitrageId][msg.sender] = SGRAmount;   /// [Note]: Save the SGR amount that was transferred for selling SGRToken
     }

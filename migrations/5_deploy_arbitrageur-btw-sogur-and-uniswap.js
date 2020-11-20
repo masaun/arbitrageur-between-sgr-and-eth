@@ -8,7 +8,8 @@ var walletAddressList = require('./addressesList/walletAddress/walletAddress.js'
 
 const _flashSwapHelper = FlashSwapHelper.address;
 const _sgrToken = contractAddressList["Ropsten"]["Sogur"]["SGRToken"];
+const _sgrAuthorizationManager = contractAddressList["Ropsten"]["Sogur"]["SGRAuthorizationManager"];
 
 module.exports = function(deployer) {
-    deployer.deploy(ArbitrageurBtwSogurAndUniswap, _flashSwapHelper, _sgrToken);
+    deployer.deploy(ArbitrageurBtwSogurAndUniswap, _flashSwapHelper, _sgrToken, _sgrAuthorizationManager);
 };

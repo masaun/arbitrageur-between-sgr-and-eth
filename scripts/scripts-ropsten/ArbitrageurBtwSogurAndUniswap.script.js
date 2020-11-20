@@ -52,7 +52,7 @@ async function sendTransaction(walletAddress, privateKey, contractAddress, input
             nonce:    web3.utils.toHex(txCount),
             from:     walletAddress,
             to:       contractAddress,  /// Contract address which will be executed
-            value:    web3.utils.toHex(web3.utils.toWei('0', 'ether')),
+            value:    web3.utils.toHex(web3.utils.toWei('0.1', 'ether')),  /// [Note]: 0.1 ETH as a msg.value
             gasLimit: web3.utils.toHex(2100000),
             gasPrice: web3.utils.toHex(web3.utils.toWei('6', 'gwei')),
             data: inputData  
