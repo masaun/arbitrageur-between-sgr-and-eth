@@ -43,16 +43,18 @@ contract FlashSwapHelper {
      *         - ETH is converted to WETH in the addLiquidityETH() method of UniswapV2Router02.sol
      **/
     function addLiquiditySGRAndETH(
-        address SGRToken, /// [Note]: This is "tokenA" => "SGRToken"
-        uint amountTokenDesired,
-        uint amountTokenMin,
+        //address SGRToken, /// [Note]: This is "tokenA" => "SGRToken"
+        uint amountSGRTokenDesired,
+        uint amountSGRTokenMin,
         uint amountETHMin,
         address to,
         uint deadline
     ) public returns (bool) {
         /// [Note]: At first, an user should execute this method with some amount of ETH (msg.value)
-        /// [Note]: "token" is "tokenA". "tokenB" is WETH.
-        uniswapV2Router02.addLiquidityETH(SGRToken, amountTokenDesired, amountTokenMin, amountETHMin, to, deadline);
+
+        /// [Note]: "tokenA" is SGRToken
+        /// [Note]: "tokenB" is WETH
+        uniswapV2Router02.addLiquidityETH(SGR_TOKEN, amountSGRTokenDesired, amountSGRTokenMin, amountETHMin, to, deadline);
     }
 
 
