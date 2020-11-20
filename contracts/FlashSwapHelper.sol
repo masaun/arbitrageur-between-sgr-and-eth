@@ -1,8 +1,10 @@
 pragma solidity ^0.6.6;
 pragma experimental ABIEncoderV2;
 
-import './uniswap-v2-core/interfaces/IUniswapV2Pair.sol';
 import './uniswap-v2-periphery/libraries/UniswapV2Library.sol';
+
+import './uniswap-v2-core/interfaces/IUniswapV2Factory.sol';
+import './uniswap-v2-core/interfaces/IUniswapV2Pair.sol';
 import './uniswap-v2-periphery/interfaces/IUniswapV2Router01.sol';
 import './uniswap-v2-periphery/interfaces/IUniswapV2Router02.sol';
 import './uniswap-v2-periphery/interfaces/IERC20.sol';
@@ -16,15 +18,15 @@ import './sogur/interfaces/ISGRToken.sol';
 contract FlashSwapHelper {
     IUniswapV2Router01 public uniswapV2Router01;
 
-    IUniswapV2Pair immutable uniswapV2Pair;
+    IUniswapV2Factory immutable uniswapV2Factory;
     IUniswapV2Router02 immutable uniswapV2Router02;
     IWETH immutable WETH;
     ISGRToken immutable SGRToken;
 
     address immutable SGR_TOKEN;
 
-    constructor(address _uniswapV2Pair, address _uniswapV2Router01, address _uniswapV2Router02, address _sgrToken) public {
-        uniswapV2Pair = IUniswapV2Pair(_uniswapV2Pair);
+    constructor(address _uniswapV2Factory, address _uniswapV2Router01, address _uniswapV2Router02, address _sgrToken) public {
+        uniswapV2Factory = IUniswapV2Factory(_uniswapV2Factory);
         uniswapV2Router01 = IUniswapV2Router01(_uniswapV2Router01);
         uniswapV2Router02 = IUniswapV2Router02(_uniswapV2Router02);
         WETH = IWETH(uniswapV2Router01.WETH());
@@ -37,6 +39,13 @@ contract FlashSwapHelper {
     ///------------------------------------------------------------
     /// In advance, add a pair (SGR - ETH) liquidity into Uniswap Pool (and create factory contract address)
     ///------------------------------------------------------------
+
+    /***
+     * @notice - Create a pair (SGR - ETH) 
+     **/
+    function createPair(address tokenA, address tokenB) public returns (bool) {
+        uniswapV2Factory.createPair(tokenA, tokenB);
+    }
 
     /***
      * @notice - Add a pair (SGR - ETH) liquidity into Uniswap Pool (and create factory contract address)
@@ -157,8 +166,17 @@ contract FlashSwapHelper {
     ///------------------------------------------------------------
     /// Getter functions
     ///------------------------------------------------------------
+    function getPair(address tokenA, address tokenB) public view returns (address pair) {
+        address pairAddress = uniswapV2Factory.getPair(tokenA, tokenB);
+        return pairAddress;
+    }
 
-
+    function getReserves(address tokenA, address tokenB) external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast) {
+        address _pair = getPair(tokenA, tokenB);
+        IUniswapV2Pair uniswapV2Pair = IUniswapV2Pair(_pair);
+        return uniswapV2Pair.getReserves();
+    }
+    
 
     ///------------------------------------------------------------
     /// Private functions
