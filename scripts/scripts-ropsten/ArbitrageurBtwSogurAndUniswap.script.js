@@ -9,14 +9,21 @@ const web3 = new Web3(provider);
 const walletAddress1 = process.env.WALLET_ADDRESS_1;
 const privateKey1 = process.env.PRIVATE_KEY_1;
 
-/* Global variable */
-let ArbitrageurBtwSogurAndUniswap = {};
-ArbitrageurBtwSogurAndUniswap = require("../../build/contracts/ArbitrageurBtwSogurAndUniswap.json");
+/* Import contract addresses */
+let contractAddressList = require('../addressesList/contractAddress/contractAddress.js');
 
 /* Set up contract */
+let ArbitrageurBtwSogurAndUniswap = {};
+ArbitrageurBtwSogurAndUniswap = require("../../build/contracts/ArbitrageurBtwSogurAndUniswap.json");
 arbitrageurBtwSogurAndUniswapABI = ArbitrageurBtwSogurAndUniswap.abi;
 arbitrageurBtwSogurAndUniswapAddr = ArbitrageurBtwSogurAndUniswap["networks"]["3"]["address"];    /// Deployed address on Ropsten
 arbitrageurBtwSogurAndUniswap = new web3.eth.Contract(arbitrageurBtwSogurAndUniswapABI, arbitrageurBtwSogurAndUniswapAddr);
+
+let SGRAuthorizationManager = {};
+SGRAuthorizationManager = require("../../build/contracts/ISGRAuthorizationManager.json");
+sgrAuthorizationManagerABI = SGRAuthorizationManager.abi;
+sgrAuthorizationManagerAddr = contractAddressList["Ropsten"]["Sogur"]["SGRAuthorizationManager"];
+sgrAuthorizationManager = new web3.eth.Contract(sgrAuthorizationManagerABI, sgrAuthorizationManagerAddr);
 
 
 /***
@@ -32,6 +39,10 @@ main();
  * @dev - Send mintAuthToken() of NftAuthToken contract 
  **/
 async function buySGR() {
+    /// At the 2nd, msg.sender is authorized for buying SGR.
+    let inputData2 = await sgrAuthorizationManager.methods.isAuthorizedToBuy(walletAddress1).encodeABI();
+    let transaction2 = await sendTransaction(walletAddress1, privateKey1, sgrAuthorizationManagerAddr, inputData2);
+
     const arbitrageId = 1;
     let inputData1 = await arbitrageurBtwSogurAndUniswap.methods.buySGR(arbitrageId).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, arbitrageurBtwSogurAndUniswapAddr, inputData1);
