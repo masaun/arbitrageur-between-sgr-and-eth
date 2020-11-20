@@ -54,7 +54,7 @@ async function sendTransaction(walletAddress, privateKey, contractAddress, input
             to:       contractAddress,  /// Contract address which will be executed
             value:    web3.utils.toHex(web3.utils.toWei('0.1', 'ether')),  /// [Note]: 0.1 ETH as a msg.value
             gasLimit: web3.utils.toHex(2100000),
-            gasPrice: web3.utils.toHex(web3.utils.toWei('6', 'gwei')),
+            gasPrice: web3.utils.toHex(web3.utils.toWei('100', 'gwei')),   /// [Note]: Gas Price is 100 Gwei 
             data: inputData  
         }
         console.log('=== txObject ===', txObject)
