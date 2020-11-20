@@ -80,7 +80,7 @@ contract ArbitrageurBtwSogurAndUniswap {
         /// At the 1st, ETH should be transferred from a user's wallet to this contract
 
         /// At the 2nd, msg.sender is authorized for buying SGR.
-        SGRAuthorizationManager.isAuthorizedToBuy(msg.sender);
+        SGRAuthorizationManager.isAuthorizedToBuy(address(this));  /// [Note]: Sender is this contract address 
 
         /// At the 3rd, operations below are executed.
         SGRToken.exchange();  /// Exchange ETH for SGR.
@@ -106,7 +106,7 @@ contract ArbitrageurBtwSogurAndUniswap {
         /// At the 1st, SGR tokens should be transferred from a user's wallet to this contract by using transfer() method. 
 
         /// At the 2nd, msg.sender is authorized for selling SGR.
-        SGRAuthorizationManager.isAuthorizedToSell(msg.sender);
+        SGRAuthorizationManager.isAuthorizedToSell(address(this));  /// [Note]: Sender is this contract address 
         SGRAuthorizationManager.isAuthorizedToTransferFrom(msg.sender, msg.sender, address(this));
 
         /// At the 3rd, operation below is executed
