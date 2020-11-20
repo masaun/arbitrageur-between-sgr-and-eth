@@ -16,7 +16,7 @@ ArbitrageurBtwSogurAndUniswap = require("../../build/contracts/ArbitrageurBtwSog
 /* Set up contract */
 arbitrageurBtwSogurAndUniswapABI = ArbitrageurBtwSogurAndUniswap.abi;
 arbitrageurBtwSogurAndUniswapAddr = ArbitrageurBtwSogurAndUniswap["networks"]["3"]["address"];    /// Deployed address on Ropsten
-arbitrageurBtwSogurAndUniswap = new web3.eth.Contract(ArbitrageurBtwSogurAndUniswapABI, ArbitrageurBtwSogurAndUniswapAddr);
+arbitrageurBtwSogurAndUniswap = new web3.eth.Contract(arbitrageurBtwSogurAndUniswapABI, arbitrageurBtwSogurAndUniswapAddr);
 
 
 /***
@@ -33,7 +33,7 @@ main();
  **/
 async function buySGR() {
     const arbitrageId = 1;
-    let inputData1 = await arbitrageurBtwSogurAndUniswa.methods.buySGR(arbitrageId).encodeABI();
+    let inputData1 = await arbitrageurBtwSogurAndUniswap.methods.buySGR(arbitrageId).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, arbitrageurBtwSogurAndUniswapAddr, inputData1)
 }
 
