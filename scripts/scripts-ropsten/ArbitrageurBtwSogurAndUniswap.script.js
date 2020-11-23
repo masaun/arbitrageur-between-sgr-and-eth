@@ -9,14 +9,21 @@ const web3 = new Web3(provider);
 const walletAddress1 = process.env.WALLET_ADDRESS_1;
 const privateKey1 = process.env.PRIVATE_KEY_1;
 
-/* Global variable */
-let ArbitrageurBtwSogurAndUniswap = {};
-ArbitrageurBtwSogurAndUniswap = require("../../build/contracts/ArbitrageurBtwSogurAndUniswap.json");
+/* Import contract addresses */
+let contractAddressList = require('../addressesList/contractAddress/contractAddress.js');
 
 /* Set up contract */
+let ArbitrageurBtwSogurAndUniswap = {};
+ArbitrageurBtwSogurAndUniswap = require("../../build/contracts/ArbitrageurBtwSogurAndUniswap.json");
 arbitrageurBtwSogurAndUniswapABI = ArbitrageurBtwSogurAndUniswap.abi;
 arbitrageurBtwSogurAndUniswapAddr = ArbitrageurBtwSogurAndUniswap["networks"]["3"]["address"];    /// Deployed address on Ropsten
 arbitrageurBtwSogurAndUniswap = new web3.eth.Contract(arbitrageurBtwSogurAndUniswapABI, arbitrageurBtwSogurAndUniswapAddr);
+
+let SGRAuthorizationManager = {};
+SGRAuthorizationManager = require("../../build/contracts/ISGRAuthorizationManager.json");
+sgrAuthorizationManagerABI = SGRAuthorizationManager.abi;
+sgrAuthorizationManagerAddr = contractAddressList["Ropsten"]["Sogur"]["SGRAuthorizationManager"];
+sgrAuthorizationManager = new web3.eth.Contract(sgrAuthorizationManagerABI, sgrAuthorizationManagerAddr);
 
 
 /***
@@ -54,14 +61,14 @@ async function sendTransaction(walletAddress, privateKey, contractAddress, input
             to:       contractAddress,  /// Contract address which will be executed
             value:    web3.utils.toHex(web3.utils.toWei('0.1', 'ether')),  /// [Note]: 0.1 ETH as a msg.value
             gasLimit: web3.utils.toHex(2100000),
-            gasPrice: web3.utils.toHex(web3.utils.toWei('6', 'gwei')),
+            gasPrice: web3.utils.toHex(web3.utils.toWei('100', 'gwei')),   /// [Note]: Gas Price is 100 Gwei 
             data: inputData  
         }
         console.log('=== txObject ===', txObject)
 
         /// Sign the transaction
         privateKey = Buffer.from(privateKey, 'hex');
-        let tx = new Tx(txObject, { 'chain': 'ropsten'});  /// Chain ID = Ropsten
+        let tx = new Tx(txObject, { 'chain': 'ropsten' });  /// Chain ID = Ropsten
         tx.sign(privateKey);
 
         const serializedTx = tx.serialize();
