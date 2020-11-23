@@ -14,13 +14,13 @@
     "migrate:ropsten": "truffle migrate --reset --network ropsten",
     "test:ropsten": "truffle test ./test/test-ropsten/* --network ropsten",
     "script:arbitrage": "node ./scripts/scripts-ropsten/ArbitrageurBtwSogurAndUniswap.script.js --network ropsten",
-    "test:ropsten": "truffle test ./test/test-ropsten/* --network ropsten",
     "start-blank": "rm -rf client/src && cp -rf barebones/src client/"
   },
   "author": "masaun",
   "license": "MIT",
   "dependencies": {
     "@openzeppelin/contracts": "^3.2.0",
+    "@openzeppelin/truffle-upgrades": "^1.2.5",
     "@truffle/hdwallet-provider": "^1.2.0",
     "dotenv": "^8.2.0",
     "eth-block-tracker": "^4.4.3",
