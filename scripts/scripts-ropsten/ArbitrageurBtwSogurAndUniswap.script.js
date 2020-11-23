@@ -68,7 +68,7 @@ async function sendTransaction(walletAddress, privateKey, contractAddress, input
 
         /// Sign the transaction
         privateKey = Buffer.from(privateKey, 'hex');
-        let tx = new Tx(txObject, { 'chain': 'ropsten'});  /// Chain ID = Ropsten
+        let tx = new Tx(txObject, { 'chain': 'ropsten' });  /// Chain ID = Ropsten
         tx.sign(privateKey);
 
         const serializedTx = tx.serialize();

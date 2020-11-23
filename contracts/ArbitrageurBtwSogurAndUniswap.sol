@@ -26,9 +26,9 @@ contract ArbitrageurBtwSogurAndUniswap {
     ISGRAuthorizationManager immutable SGRAuthorizationManager;
 
     address payable FLASH_SWAP_HELPER;
-    address SGR_TOKEN;
+    address payable SGR_TOKEN;
 
-    constructor(address payable _flashSwapHelper, address _sgrToken, address _sgrAuthorizationManager) public {
+    constructor(address payable _flashSwapHelper, address payable _sgrToken, address _sgrAuthorizationManager) public {
         flashSwapHelper = FlashSwapHelper(_flashSwapHelper);
         SGRToken = ISGRToken(_sgrToken);
         SGRAuthorizationManager = ISGRAuthorizationManager(_sgrAuthorizationManager);
@@ -77,7 +77,9 @@ contract ArbitrageurBtwSogurAndUniswap {
      * @notice - Buying SGR from Sögur's smart contract (by sending ETH to it)
      **/
     function buySGR(uint arbitrageId) public payable returns (bool) {
-        /// At the 1st, ETH should be transferred from a user's wallet to this contract
+        /// At the 1st, ETH should be transferred from a user's wallet to this contract.
+        /// After that, ETH should be transferred from this contract to SGRToken contract.
+        SGR_TOKEN.transfer(msg.value);
 
         /// At the 2rd, operations below are executed.
         SGRToken.exchange();  /// Exchange ETH for SGR.
