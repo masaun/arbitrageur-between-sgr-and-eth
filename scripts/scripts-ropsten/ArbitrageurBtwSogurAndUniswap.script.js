@@ -39,10 +39,6 @@ main();
  * @dev - Send mintAuthToken() of NftAuthToken contract 
  **/
 async function buySGR() {
-    /// At the 2nd, msg.sender is authorized for buying SGR.
-    let inputData2 = await sgrAuthorizationManager.methods.isAuthorizedToBuy(walletAddress1).encodeABI();
-    let transaction2 = await sendTransaction(walletAddress1, privateKey1, sgrAuthorizationManagerAddr, inputData2);
-
     const arbitrageId = 1;
     let inputData1 = await arbitrageurBtwSogurAndUniswap.methods.buySGR(arbitrageId).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, arbitrageurBtwSogurAndUniswapAddr, inputData1);
