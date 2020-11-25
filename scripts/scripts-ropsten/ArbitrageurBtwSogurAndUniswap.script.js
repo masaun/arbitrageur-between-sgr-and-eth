@@ -16,7 +16,8 @@ let contractAddressList = require('../addressesList/contractAddress/contractAddr
 let ArbitrageurBtwSogurAndUniswap = {};
 ArbitrageurBtwSogurAndUniswap = require("../../build/contracts/ArbitrageurBtwSogurAndUniswap.json");
 arbitrageurBtwSogurAndUniswapABI = ArbitrageurBtwSogurAndUniswap.abi;
-arbitrageurBtwSogurAndUniswapAddr = ArbitrageurBtwSogurAndUniswap["networks"]["3"]["address"];    /// Deployed address on Ropsten
+arbitrageurBtwSogurAndUniswapAddr = "0x58eA9C155ace1a7549F709f8a2B1DA00Aca53cfd";  /// Deployed address on Ropsten
+//arbitrageurBtwSogurAndUniswapAddr = ArbitrageurBtwSogurAndUniswap["networks"]["3"]["address"];    /// Deployed address on Ropsten
 arbitrageurBtwSogurAndUniswap = new web3.eth.Contract(arbitrageurBtwSogurAndUniswapABI, arbitrageurBtwSogurAndUniswapAddr);
 
 let SGRAuthorizationManager = {};
@@ -26,10 +27,18 @@ sgrAuthorizationManagerAddr = contractAddressList["Ropsten"]["Sogur"]["SGRAuthor
 sgrAuthorizationManager = new web3.eth.Contract(sgrAuthorizationManagerABI, sgrAuthorizationManagerAddr);
 
 
+let SGRToken = {};
+SGRToken = require("../../build/contracts/ISGRToken.json");
+sgrTokenABI = SGRToken.abi;
+sgrTokenAddr = contractAddressList["Ropsten"]["Sogur"]["SGRToken"];
+sgrToken = new web3.eth.Contract(sgrTokenABI, sgrTokenAddr);
+
+
 /***
  * @notice - Execute all methods
  **/
 async function main() {
+    await testBuySGR();
     await buySGR();
 }
 main();
@@ -42,6 +51,13 @@ async function buySGR() {
     const arbitrageId = 1;
     let inputData1 = await arbitrageurBtwSogurAndUniswap.methods.buySGR(arbitrageId).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, arbitrageurBtwSogurAndUniswapAddr, inputData1);
+}
+
+
+async function testBuySGR() {
+    const arbitrageId = 1;
+    let inputData1 = await sgrToken.methods.exchange().encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, sgrTokenAddr, inputData1);
 }
 
 
