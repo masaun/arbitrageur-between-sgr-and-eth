@@ -38,6 +38,7 @@ sgrToken = new web3.eth.Contract(sgrTokenABI, sgrTokenAddr);
  * @notice - Execute all methods
  **/
 async function main() {
+    await depositETHIntoSGRcontract();
     await testBuySGR();
     await buySGR();
 }
@@ -54,11 +55,17 @@ async function buySGR() {
 }
 
 
-async function testBuySGR() {
-    const arbitrageId = 1;
+async function testBuySGR() { /// [Result]: Error "invalid ETH-SDR rate"
     let inputData1 = await sgrToken.methods.exchange().encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, sgrTokenAddr, inputData1);
 }
+
+
+async function depositETHIntoSGRcontract() {  /// [Result]: Success to exchange ETH for SGR
+    let inputData1 = await sgrToken.methods.deposit().encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, sgrTokenAddr, inputData1);
+}
+
 
 
 /***
