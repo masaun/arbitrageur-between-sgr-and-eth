@@ -1,3 +1,4 @@
+/// Upgrades Plugins
 const FlashSwapHelper = artifacts.require("FlashSwapHelper");
 
 //@dev - Import from exported file
@@ -9,6 +10,6 @@ const _uniswapV2Factory = contractAddressList["Ropsten"]["Uniswap"]["UniswapV2Fa
 const _uniswapV2Router02 = contractAddressList["Ropsten"]["Uniswap"]["UniswapV2Router02"];
 const _sgrToken = contractAddressList["Ropsten"]["Sogur"]["SGRToken"];
 
-module.exports = function(deployer) {
+module.exports = async function (deployer) {
     deployer.deploy(FlashSwapHelper, _uniswapV2Factory, _uniswapV2Router02, _sgrToken);
 };

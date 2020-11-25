@@ -79,7 +79,7 @@ contract ArbitrageurBtwSogurAndUniswap {
     function buySGR(uint arbitrageId) public payable returns (bool) {
         /// At the 1st, ETH should be transferred from a user's wallet to this contract.
         /// After that, ETH should be transferred from this contract to SGRToken contract.
-        SGR_TOKEN.transfer(msg.value);
+        //SGR_TOKEN.transfer(msg.value);
 
         /// At the 2rd, operations below are executed.
         SGRToken.exchange();  /// Exchange ETH for SGR.
