@@ -43,10 +43,10 @@ sgrToken = new web3.eth.Contract(sgrTokenABI, sgrTokenAddr);
  * @notice - Execute all methods
  **/
 async function main() {
-    await depositETHIntoSGRcontract();
+    //await depositETHIntoSGRcontract();
     await swapSGRForETH();
     //await testBuySGR();
-    await buySGR();
+    //await buySGR();
 }
 main();
 
@@ -73,11 +73,14 @@ async function depositETHIntoSGRcontract() {  /// [Result]: Success to exchange 
 
 async function swapSGRForETH() {  /// [Result]: Success to exchange ETH for SGR
     const SGRAmount = web3.utils.toWei('0.1', 'ether');  /// 0.1 SGR
-    let inputData1 = await sgrToken.methods.transfer(arbitrageurBtwSogurAndUniswapAddr, SGRAmount).encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, sgrTokenAddr, inputData1);
+    //let inputData1 = await sgrToken.methods.transfer(arbitrageurBtwSogurAndUniswapAddr, SGRAmount).encodeABI();
+    //let transaction1 = await sendTransaction(walletAddress1, privateKey1, sgrTokenAddr, inputData1);
 
-    let inputData2 = await arbitrageurBtwSogurAndUniswap.methods.swapSGRForETH(walletAddress1, SGRAmount).encodeABI();
-    let transaction2 = await sendTransaction(walletAddress1, privateKey1, sgrTokenAddr, inputData2);
+    // let inputData2 = await arbitrageurBtwSogurAndUniswap.methods.swapSGRForETH(walletAddress1, SGRAmount).encodeABI();
+    // let transaction2 = await sendTransaction(walletAddress1, privateKey1, arbitrageurBtwSogurAndUniswapAddr, inputData2);
+
+    let inputData3 = await flashSwapHelper.methods.swapSGRForETH(walletAddress1, SGRAmount).encodeABI();
+    let transaction3 = await sendTransaction(walletAddress1, privateKey1, flashSwapHelperAddr, inputData3);
 }
 
 
@@ -96,7 +99,7 @@ async function sendTransaction(walletAddress, privateKey, contractAddress, input
             nonce:    web3.utils.toHex(txCount),
             from:     walletAddress,
             to:       contractAddress,  /// Contract address which will be executed
-            value:    web3.utils.toHex(web3.utils.toWei('0.1', 'ether')),  /// [Note]: 0.1 ETH as a msg.value
+            value:    web3.utils.toHex(web3.utils.toWei('0.05', 'ether')),  /// [Note]: 0.05 ETH as a msg.value
             gasLimit: web3.utils.toHex(2100000),
             gasPrice: web3.utils.toHex(web3.utils.toWei('100', 'gwei')),   /// [Note]: Gas Price is 100 Gwei 
             data: inputData  
