@@ -16,8 +16,8 @@ let contractAddressList = require('../addressesList/contractAddress/contractAddr
 let ArbitrageurBtwSogurAndUniswap = {};
 ArbitrageurBtwSogurAndUniswap = require("../../build/contracts/ArbitrageurBtwSogurAndUniswap.json");
 arbitrageurBtwSogurAndUniswapABI = ArbitrageurBtwSogurAndUniswap.abi;
-arbitrageurBtwSogurAndUniswapAddr = "0x58eA9C155ace1a7549F709f8a2B1DA00Aca53cfd";  /// Deployed address on Ropsten
-//arbitrageurBtwSogurAndUniswapAddr = ArbitrageurBtwSogurAndUniswap["networks"]["3"]["address"];    /// Deployed address on Ropsten
+arbitrageurBtwSogurAndUniswapAddr = ArbitrageurBtwSogurAndUniswap["networks"]["3"]["address"];    /// Deployed address on Ropsten
+//arbitrageurBtwSogurAndUniswapAddr = "0x58eA9C155ace1a7549F709f8a2B1DA00Aca53cfd";  /// Deployed address on Ropsten (the 1st whitelisted address)
 arbitrageurBtwSogurAndUniswap = new web3.eth.Contract(arbitrageurBtwSogurAndUniswapABI, arbitrageurBtwSogurAndUniswapAddr);
 
 let SGRAuthorizationManager = {};
@@ -39,7 +39,7 @@ sgrToken = new web3.eth.Contract(sgrTokenABI, sgrTokenAddr);
  **/
 async function main() {
     await depositETHIntoSGRcontract();
-    await testBuySGR();
+    //await testBuySGR();
     await buySGR();
 }
 main();
@@ -54,11 +54,10 @@ async function buySGR() {
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, arbitrageurBtwSogurAndUniswapAddr, inputData1);
 }
 
-
-async function testBuySGR() { /// [Result]: Error "invalid ETH-SDR rate"
-    let inputData1 = await sgrToken.methods.exchange().encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, sgrTokenAddr, inputData1);
-}
+// async function testBuySGR() { /// [Result]: Error "invalid ETH-SDR rate"
+//     let inputData1 = await sgrToken.methods.exchange().encodeABI();
+//     let transaction1 = await sendTransaction(walletAddress1, privateKey1, sgrTokenAddr, inputData1);
+// }
 
 
 async function depositETHIntoSGRcontract() {  /// [Result]: Success to exchange ETH for SGR
