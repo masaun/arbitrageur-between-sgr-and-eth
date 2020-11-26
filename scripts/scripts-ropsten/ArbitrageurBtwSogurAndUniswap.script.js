@@ -44,12 +44,11 @@ sgrToken = new web3.eth.Contract(sgrTokenABI, sgrTokenAddr);
  **/
 async function main() {
     //await depositETHIntoSGRcontract();
+    await addLiquiditySGRAndETH();
     await swapSGRForETH();
-    //await testBuySGR();
     //await buySGR();
 }
 main();
-
 
 /*** 
  * @dev - Send mintAuthToken() of NftAuthToken contract 
@@ -60,15 +59,20 @@ async function buySGR() {
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, arbitrageurBtwSogurAndUniswapAddr, inputData1);
 }
 
-// async function testBuySGR() { /// [Result]: Error "invalid ETH-SDR rate"
-//     let inputData1 = await sgrToken.methods.exchange().encodeABI();
-//     let transaction1 = await sendTransaction(walletAddress1, privateKey1, sgrTokenAddr, inputData1);
-// }
-
-
 async function depositETHIntoSGRcontract() {  /// [Result]: Success to exchange ETH for SGR
     let inputData1 = await sgrToken.methods.deposit().encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, sgrTokenAddr, inputData1);
+}
+
+async function addLiquiditySGRAndETH() {  /// [Result]: 
+    const amountSGRTokenDesired = web3.utils.toWei('1', 'ether');  /// 1 SGR
+    const amountSGRTokenMin = web3.utils.toWei('0.1', 'ether');    /// 0.1 SGR
+    const amountETHMin = 0;
+    const to = walletAddress1;
+    const deadline = new Date().getTime();  /// [Note]: Unit is "mili-second"
+
+    let inputData1 = await flashSwapHelper.methods.addLiquiditySGRAndETH(amountSGRTokenDesired, amountSGRTokenMin, amountETHMin, to, deadline).encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, flashSwapHelperAddr, inputData1);
 }
 
 async function swapSGRForETH() {  /// [Result]: Success to exchange ETH for SGR
