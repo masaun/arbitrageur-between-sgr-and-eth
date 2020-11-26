@@ -82,7 +82,7 @@ contract ArbitrageurBtwSogurAndUniswap {
         //SGR_TOKEN.transfer(msg.value);
 
         /// At the 2rd, operations below are executed.
-        SGRToken.exchange();  /// Exchange ETH for SGR.
+        SGRToken.deposit();  /// Exchange ETH for SGR.
         ethAmountWhenBuySGR[arbitrageId][msg.sender] = msg.value;  /// [Note]: Save the ETH amount that was transferred for buying SGRToken 
     }
 

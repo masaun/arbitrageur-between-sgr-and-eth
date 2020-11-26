@@ -16,16 +16,21 @@ let contractAddressList = require('../addressesList/contractAddress/contractAddr
 let ArbitrageurBtwSogurAndUniswap = {};
 ArbitrageurBtwSogurAndUniswap = require("../../build/contracts/ArbitrageurBtwSogurAndUniswap.json");
 arbitrageurBtwSogurAndUniswapABI = ArbitrageurBtwSogurAndUniswap.abi;
-arbitrageurBtwSogurAndUniswapAddr = "0x58eA9C155ace1a7549F709f8a2B1DA00Aca53cfd";  /// Deployed address on Ropsten
 //arbitrageurBtwSogurAndUniswapAddr = ArbitrageurBtwSogurAndUniswap["networks"]["3"]["address"];    /// Deployed address on Ropsten
+arbitrageurBtwSogurAndUniswapAddr = "0x58eA9C155ace1a7549F709f8a2B1DA00Aca53cfd";  /// Deployed address on Ropsten (the 1st whitelisted address)
 arbitrageurBtwSogurAndUniswap = new web3.eth.Contract(arbitrageurBtwSogurAndUniswapABI, arbitrageurBtwSogurAndUniswapAddr);
+
+let FlashSwapHelper = {};
+FlashSwapHelper = require("../../build/contracts/FlashSwapHelper.json");
+flashSwapHelperABI = FlashSwapHelper.abi;
+flashSwapHelperAddr = FlashSwapHelper["networks"]["3"]["address"];    /// Deployed address on Ropsten
+flashSwapHelper  = new web3.eth.Contract(flashSwapHelperABI, flashSwapHelperAddr);
 
 let SGRAuthorizationManager = {};
 SGRAuthorizationManager = require("../../build/contracts/ISGRAuthorizationManager.json");
 sgrAuthorizationManagerABI = SGRAuthorizationManager.abi;
 sgrAuthorizationManagerAddr = contractAddressList["Ropsten"]["Sogur"]["SGRAuthorizationManager"];
 sgrAuthorizationManager = new web3.eth.Contract(sgrAuthorizationManagerABI, sgrAuthorizationManagerAddr);
-
 
 let SGRToken = {};
 SGRToken = require("../../build/contracts/ISGRToken.json");
@@ -38,12 +43,12 @@ sgrToken = new web3.eth.Contract(sgrTokenABI, sgrTokenAddr);
  * @notice - Execute all methods
  **/
 async function main() {
-    await depositETHIntoSGRcontract();
-    await testBuySGR();
-    await buySGR();
+    //await depositETHIntoSGRcontract();
+    await addLiquiditySGRAndETH();
+    await swapSGRForETH();
+    //await buySGR();
 }
 main();
-
 
 /*** 
  * @dev - Send mintAuthToken() of NftAuthToken contract 
@@ -54,16 +59,32 @@ async function buySGR() {
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, arbitrageurBtwSogurAndUniswapAddr, inputData1);
 }
 
-
-async function testBuySGR() { /// [Result]: Error "invalid ETH-SDR rate"
-    let inputData1 = await sgrToken.methods.exchange().encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, sgrTokenAddr, inputData1);
-}
-
-
 async function depositETHIntoSGRcontract() {  /// [Result]: Success to exchange ETH for SGR
     let inputData1 = await sgrToken.methods.deposit().encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, sgrTokenAddr, inputData1);
+}
+
+async function addLiquiditySGRAndETH() {  /// [Result]: 
+    const amountSGRTokenDesired = web3.utils.toWei('1', 'ether');  /// 1 SGR
+    const amountSGRTokenMin = web3.utils.toWei('0.1', 'ether');    /// 0.1 SGR
+    const amountETHMin = 0;
+    const to = walletAddress1;
+    const deadline = new Date().getTime();  /// [Note]: Unit is "mili-second"
+
+    let inputData1 = await flashSwapHelper.methods.addLiquiditySGRAndETH(amountSGRTokenDesired, amountSGRTokenMin, amountETHMin, to, deadline).encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, flashSwapHelperAddr, inputData1);
+}
+
+async function swapSGRForETH() {  /// [Result]: Success to exchange ETH for SGR
+    const SGRAmount = web3.utils.toWei('0.1', 'ether');  /// 0.1 SGR
+    //let inputData1 = await sgrToken.methods.transfer(arbitrageurBtwSogurAndUniswapAddr, SGRAmount).encodeABI();
+    //let transaction1 = await sendTransaction(walletAddress1, privateKey1, sgrTokenAddr, inputData1);
+
+    // let inputData2 = await arbitrageurBtwSogurAndUniswap.methods.swapSGRForETH(walletAddress1, SGRAmount).encodeABI();
+    // let transaction2 = await sendTransaction(walletAddress1, privateKey1, arbitrageurBtwSogurAndUniswapAddr, inputData2);
+
+    let inputData3 = await flashSwapHelper.methods.swapSGRForETH(walletAddress1, SGRAmount).encodeABI();
+    let transaction3 = await sendTransaction(walletAddress1, privateKey1, flashSwapHelperAddr, inputData3);
 }
 
 
@@ -82,7 +103,7 @@ async function sendTransaction(walletAddress, privateKey, contractAddress, input
             nonce:    web3.utils.toHex(txCount),
             from:     walletAddress,
             to:       contractAddress,  /// Contract address which will be executed
-            value:    web3.utils.toHex(web3.utils.toWei('0.1', 'ether')),  /// [Note]: 0.1 ETH as a msg.value
+            value:    web3.utils.toHex(web3.utils.toWei('0.05', 'ether')),  /// [Note]: 0.05 ETH as a msg.value
             gasLimit: web3.utils.toHex(2100000),
             gasPrice: web3.utils.toHex(web3.utils.toWei('100', 'gwei')),   /// [Note]: Gas Price is 100 Gwei 
             data: inputData  
