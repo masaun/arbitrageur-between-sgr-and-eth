@@ -43,10 +43,14 @@ sgrToken = new web3.eth.Contract(sgrTokenABI, sgrTokenAddr);
  * @notice - Execute all methods
  **/
 async function main() {
+    /// [Unit test]:
     //await depositETHIntoSGRcontract();
     await addLiquiditySGRAndETH();
     await swapSGRForETH();
     //await buySGR();
+
+    /// [Whole method]:
+    await executeArbitrageByBuying();
 }
 main();
 
@@ -87,6 +91,12 @@ async function swapSGRForETH() {  /// [Result]: Success to exchange ETH for SGR
     let transaction3 = await sendTransaction(walletAddress1, privateKey1, flashSwapHelperAddr, inputData3);
 }
 
+async function executeArbitrageByBuying() {
+    const SGRAmount = web3.utils.toWei('0.1', 'ether');  /// 0.1 SGR
+
+    let inputData = await arbitrageurBtwSogurAndUniswap.methods.executeArbitrageByBuying(walletAddress1, SGRAmount).encodeABI();
+    let transaction = await sendTransaction(walletAddress1, privateKey1, arbitrageurBtwSogurAndUniswapAddr, inputData);
+}
 
 
 /***
