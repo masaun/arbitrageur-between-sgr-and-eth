@@ -1,6 +1,4 @@
 # Arbitrageur between Sogur and ETH
-
-***
 ## 【Introduction of Arbitrageur between Sogur and ETH】
 - This is a solidity smart contract that allows a user to get a opportunity to execute automatic arbitrage between SGR (Sogur token) and ETH.
 
@@ -16,7 +14,7 @@
 
 ***
 
-## Setup
+## 【Setup】
 ### ① Add `.env` file
 - Based on `.env.example` , you add  `.env` file
 
