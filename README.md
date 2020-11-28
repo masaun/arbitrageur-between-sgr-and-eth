@@ -9,6 +9,13 @@
 
 ***
 
+## 【Workflow】
+![【Diagram】Arbitrageur btw Sogur and Uniswap](https://user-images.githubusercontent.com/19357502/100517139-02808a80-31cc-11eb-8b6a-dae2bfe99846.jpg)
+
+&nbsp;
+
+***
+
 ## Setup
 ### ① Add `.env` file
 - Based on `.env.example` , you add  `.env` file
@@ -51,6 +58,9 @@ $ npm run script:arbitrage
 - Sogur   
   - Smart contract  
     https://github.com/SogurCurrency/smart-contracts  
+
+  - Deployed contract address (on Mainnet and Ropsten)  
+    https://github.com/SogurCurrency/Gitcoin-hackathon/issues/2
 
   - Gitcoin bounty: Arbitrage Profit By Transacting In Both Uniswap And Sogur’s Smart Contract  
     https://gitcoin.co/issue/SogurCurrency/Gitcoin-hackathon/4/100024001  
