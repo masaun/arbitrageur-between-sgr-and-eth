@@ -1,9 +1,8 @@
-# Flash Swap with Sogur
+# Arbitrageur between Sogur and ETH
 
 ***
-## 【Introduction of Flash Swap with Sogur】
-- Flash Swap with Sogur
-  - This is a solidity smart contract that allows a user to get a opportunity to execute automatic arbitrage between ETH and SGR (Sogur token).
+## 【Introduction of Arbitrageur between Sogur and ETH】
+- This is a solidity smart contract that allows a user to get a opportunity to execute automatic arbitrage between SGR (Sogur token) and ETH.
 
 
 &nbsp;
@@ -11,26 +10,40 @@
 ***
 
 ## Setup
-### ① Install modules
+### ① Add `.env` file
+- Based on `.env.example` , you add  `.env` file
+
+<br>
+
+### ② Install modules
 ```
 $ npm install
 ```
 
 <br>
 
-### ② Compile & migrate contracts (on Ropsten testnet)
+### ③ Compile & migrate contracts (on Ropsten testnet)
 ```
 $ npm run migrate:ropsten
 ```
 
 <br>
 
-### ③ Execute script (it's instead of testing)
+### ④ Execute script (it's instead of testing)
 ```
 $ npm run script:arbitrage
 ```
 
 &nbsp;
+
+***
+
+## 【Remarks】
+- Before you exeute script (Step④ above), you need to whitelisted by Sogur support. (When you execute script on Ropsten)
+
+
+&nbsp;
+
 
 ***
 
