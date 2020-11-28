@@ -26,9 +26,9 @@ let dai = new web3.eth.Contract(DAI_ABI, DAI_ADDRESS);
 
 
 /***
- * @dev - [Execution]: $ truffle test ./test/test-local/FlashSwapWithSogur.test.js --network local
+ * @dev - [Execution]: $ truffle test ./test/test-local/ArbitrageurBtwSogurAndUniswap.test --network local
  **/
-contract("FlashSwapWithSogur contract", function (accounts) {
+contract("ArbitrageurBtwSogurAndUniswap contract", function (accounts) {
 
     /// Set up wallet
     let walletAddress1 = accounts[0];
