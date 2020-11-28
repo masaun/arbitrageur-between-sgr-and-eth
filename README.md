@@ -1,6 +1,6 @@
-# Arbitrageur between Sogur and ETH
-## 【Introduction of Arbitrageur between Sogur and ETH】
-- This is a solidity smart contract that allows a user to get a opportunity to execute automatic arbitrage between SGR (Sogur token) and ETH.
+# Arbitrageur between SGR (Sögur Token) and ETH
+## 【Introduction of Arbitrageur between SGR (Sögur Token) and ETH】
+- This is a solidity smart contract that allows a user to get a opportunity to execute automatic arbitrage between SGR (Sögur token) and ETH.
 
 
 &nbsp;
@@ -53,14 +53,14 @@ $ npm run script:arbitrage
 ***
 
 ## 【References】
-- Sogur   
+- Sögur 
   - Smart contract  
     https://github.com/SogurCurrency/smart-contracts  
 
   - Deployed contract address (on Mainnet and Ropsten)  
     https://github.com/SogurCurrency/Gitcoin-hackathon/issues/2
 
-  - Gitcoin bounty: Arbitrage Profit By Transacting In Both Uniswap And Sogur’s Smart Contract  
+  - Gitcoin bounty: Arbitrage Profit By Transacting In Both Uniswap And Sögur’s Smart Contract  
     https://gitcoin.co/issue/SogurCurrency/Gitcoin-hackathon/4/100024001  
 
 <br>
