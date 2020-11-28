@@ -1,31 +1,40 @@
-# Flash Swap with Sogur
-
-***
-## 【Introduction of Flash Swap with Sogur】
-- Flash Swap with Sogur
-  - This is a solidity smart contract that allows a user to get a opportunity to execute automatic arbitrage between ETH and SGR (Sogur token).
+# Arbitrageur between Sogur and ETH
+## 【Introduction of Arbitrageur between Sogur and ETH】
+- This is a solidity smart contract that allows a user to get a opportunity to execute automatic arbitrage between SGR (Sogur token) and ETH.
 
 
 &nbsp;
 
 ***
 
-## Setup
-### ① Install modules
+## 【Workflow】
+![【Diagram】Arbitrageur btw Sogur and Uniswap](https://user-images.githubusercontent.com/19357502/100517139-02808a80-31cc-11eb-8b6a-dae2bfe99846.jpg)
+
+&nbsp;
+
+***
+
+## 【Setup】
+### ① Add `.env` file
+- Based on `.env.example` , you add  `.env` file
+
+<br>
+
+### ② Install modules
 ```
 $ npm install
 ```
 
 <br>
 
-### ② Compile & migrate contracts (on Ropsten testnet)
+### ③ Compile & migrate contracts (on Ropsten testnet)
 ```
 $ npm run migrate:ropsten
 ```
 
 <br>
 
-### ③ Execute script (it's instead of testing)
+### ④ Execute script (it's instead of testing)
 ```
 $ npm run script:arbitrage
 ```
@@ -34,10 +43,22 @@ $ npm run script:arbitrage
 
 ***
 
+## 【Remarks】
+- Before you exeute script (Step④ above), you need to whitelisted by Sogur support. (When you execute script on Ropsten)
+
+
+&nbsp;
+
+
+***
+
 ## 【References】
 - Sogur   
   - Smart contract  
     https://github.com/SogurCurrency/smart-contracts  
+
+  - Deployed contract address (on Mainnet and Ropsten)  
+    https://github.com/SogurCurrency/Gitcoin-hackathon/issues/2
 
   - Gitcoin bounty: Arbitrage Profit By Transacting In Both Uniswap And Sogur’s Smart Contract  
     https://gitcoin.co/issue/SogurCurrency/Gitcoin-hackathon/4/100024001  
