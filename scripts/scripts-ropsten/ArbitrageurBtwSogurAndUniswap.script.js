@@ -44,18 +44,19 @@ sgrToken = new web3.eth.Contract(sgrTokenABI, sgrTokenAddr);
  **/
 async function main() {
     /// [Unit test]:
-    //await depositETHIntoSGRcontract();
+    await depositETHIntoSGRcontract();
     await addLiquiditySGRAndETH();
     await swapSGRForETH();
-    //await buySGR();
+    await buySGR();
 
-    /// [Whole method]:
+    /// [Whole execution method]:
     await executeArbitrageByBuying();
 }
 main();
 
+
 /*** 
- * @dev - Send mintAuthToken() of NftAuthToken contract 
+ * @dev - Unit test
  **/
 async function buySGR() {
     const arbitrageId = 1;
@@ -91,6 +92,10 @@ async function swapSGRForETH() {  /// [Result]: Success to exchange ETH for SGR
     let transaction3 = await sendTransaction(walletAddress1, privateKey1, flashSwapHelperAddr, inputData3);
 }
 
+
+/*** 
+ * @dev - Whole execution method
+ **/
 async function executeArbitrageByBuying() {
     const SGRAmount = web3.utils.toWei('0.1', 'ether');  /// 0.1 SGR
 
