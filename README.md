@@ -45,7 +45,8 @@ $ npm run script:arbitrage
 
 ## 【Remarks】
 - Before you exeute script (Step④ above), you need to whitelisted by Sogur support. (When you execute script on Ropsten)
-
+- In advance (In case of using ropsten), you need to add a pair (SGR - ETH) liquidity into Uniswap Pool (and create factory contract address)  
+  (by using the `addLiquiditySGRAndETH` method: https://github.com/masaun/arbitrageur-between-sgr-and-eth/blob/master/contracts/FlashSwapHelper.sol#L45-L58
 
 &nbsp;
 
